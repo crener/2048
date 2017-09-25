@@ -145,14 +145,14 @@ public class GestureController : MonoBehaviour
             if(NormalizedDelta.x > 0)
             {
 #if UNITY_EDITOR
-                Debug.Log("right");
+                if(debugLogging) Debug.Log("right");
 #endif
                 m_Right.Invoke();
             }
             else
             {
 #if UNITY_EDITOR
-                Debug.Log("left");
+                if(debugLogging) Debug.Log("left");
 #endif
                 m_Left.Invoke();
             }
@@ -163,14 +163,14 @@ public class GestureController : MonoBehaviour
             if(NormalizedDelta.y > 0)
             {
 #if UNITY_EDITOR
-                Debug.Log("up");
+                if(debugLogging) Debug.Log("up");
 #endif
                 m_Up.Invoke();
             }
             else
             {
 #if UNITY_EDITOR
-                Debug.Log("down");
+                if(debugLogging) Debug.Log("down");
 #endif
                 m_Down.Invoke();
             }

@@ -282,7 +282,18 @@ MonoBehaviour:
   debugLogging: 0
   m_Up:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 1083837860}
+        m_MethodName: Up
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
     m_TypeName: GestureController+GestureEvent, Assembly-CSharp, Version=0.0.0.0,
       Culture=neutral, PublicKeyToken=null
   m_Right:
@@ -352,8 +363,10 @@ MonoBehaviour:
     score: -1
     Color: {r: 0, g: 0, b: 0, a: 1}
     SecondaryTextColour: 0
-  emptyTileColor: {r: 0.5, g: 0.5, b: 0.5, a: 1}
+  emptyTileColor: {r: 0.6313726, g: 0.6313726, b: 0.6313726, a: 1}
   MovementSpeed: 0.2
+  EdgeSpawn: 0.7
+  highScoreSpawn: 0.1
 --- !u!1 &1220285714
 GameObject:
   m_ObjectHideFlags: 0
