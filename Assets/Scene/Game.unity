@@ -163,7 +163,7 @@ MonoBehaviour:
     m_TypeName: UnityEngine.UI.MaskableGraphic+CullStateChangedEvent, UnityEngine.UI,
       Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
   m_FontData:
-    m_Font: {fileID: 10102, guid: 0000000000000000e000000000000000, type: 0}
+    m_Font: {fileID: 12800000, guid: 421fc5cb3a796ed4bb1133871b85bb5f, type: 3}
     m_FontSize: 14
     m_FontStyle: 0
     m_BestFit: 1
@@ -193,6 +193,7 @@ GameObject:
   - component: {fileID: 1083837856}
   - component: {fileID: 1083837858}
   - component: {fileID: 1083837857}
+  - component: {fileID: 1083837860}
   - component: {fileID: 1083837859}
   m_Layer: 5
   m_Name: board
@@ -278,6 +279,81 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   minMoveDist: 20
+  debugLogging: 0
+  m_Up:
+    m_PersistentCalls:
+      m_Calls: []
+    m_TypeName: GestureController+GestureEvent, Assembly-CSharp, Version=0.0.0.0,
+      Culture=neutral, PublicKeyToken=null
+  m_Right:
+    m_PersistentCalls:
+      m_Calls: []
+    m_TypeName: GestureController+GestureEvent, Assembly-CSharp, Version=0.0.0.0,
+      Culture=neutral, PublicKeyToken=null
+  m_Down:
+    m_PersistentCalls:
+      m_Calls: []
+    m_TypeName: GestureController+GestureEvent, Assembly-CSharp, Version=0.0.0.0,
+      Culture=neutral, PublicKeyToken=null
+  m_Left:
+    m_PersistentCalls:
+      m_Calls: []
+    m_TypeName: GestureController+GestureEvent, Assembly-CSharp, Version=0.0.0.0,
+      Culture=neutral, PublicKeyToken=null
+--- !u!114 &1083837860
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 1083837854}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 85bebaa61cea96846b522cae50e7a735, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  scoreText: {fileID: 0}
+  primaryTextColour: {r: 0.19852942, g: 0.19852942, b: 0.19852942, a: 1}
+  SecondaryTextColour: {r: 0.9485294, g: 0.9485294, b: 0.9485294, a: 1}
+  Styles:
+  - score: 2
+    Color: {r: 0.89705884, g: 0.89705884, b: 0.89705884, a: 1}
+    SecondaryTextColour: 0
+  - score: 4
+    Color: {r: 0.97794116, g: 0.9054386, b: 0.66873914, a: 1}
+    SecondaryTextColour: 0
+  - score: 8
+    Color: {r: 1, g: 0.7597363, b: 0.24264705, a: 1}
+    SecondaryTextColour: 1
+  - score: 16
+    Color: {r: 1, g: 0.609, b: 0.14705884, a: 1}
+    SecondaryTextColour: 1
+  - score: 32
+    Color: {r: 1, g: 0.434, b: 0.14705884, a: 1}
+    SecondaryTextColour: 1
+  - score: 64
+    Color: {r: 1, g: 0.147, b: 0.14705884, a: 1}
+    SecondaryTextColour: 1
+  - score: 128
+    Color: {r: 1, g: 0.9319473, b: 0.5514706, a: 1}
+    SecondaryTextColour: 1
+  - score: 256
+    Color: {r: 1, g: 0.89208925, b: 0.44117647, a: 1}
+    SecondaryTextColour: 1
+  - score: 512
+    Color: {r: 1, g: 0.9195176, b: 0.29411763, a: 1}
+    SecondaryTextColour: 1
+  - score: 1024
+    Color: {r: 1, g: 0.929, b: 0.225, a: 1}
+    SecondaryTextColour: 1
+  - score: 2048
+    Color: {r: 1, g: 0.8482759, b: 0, a: 1}
+    SecondaryTextColour: 1
+  UnknownTileStyle:
+    score: -1
+    Color: {r: 0, g: 0, b: 0, a: 1}
+    SecondaryTextColour: 0
+  emptyTileColor: {r: 0.5, g: 0.5, b: 0.5, a: 1}
+  MovementSpeed: 0.2
 --- !u!1 &1220285714
 GameObject:
   m_ObjectHideFlags: 0
@@ -333,7 +409,7 @@ MonoBehaviour:
     m_TypeName: UnityEngine.UI.MaskableGraphic+CullStateChangedEvent, UnityEngine.UI,
       Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
   m_FontData:
-    m_Font: {fileID: 10102, guid: 0000000000000000e000000000000000, type: 0}
+    m_Font: {fileID: 12800000, guid: 421fc5cb3a796ed4bb1133871b85bb5f, type: 3}
     m_FontSize: 14
     m_FontStyle: 0
     m_BestFit: 1

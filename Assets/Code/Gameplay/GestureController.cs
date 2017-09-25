@@ -135,7 +135,7 @@ public class GestureController : MonoBehaviour
         CalculateGestureDirection(delta);
     }
 
-    void CalculateGestureDirection(Vector3 NormalizedDelta)
+    void CalculateGestureDirection(Vector2 NormalizedDelta)
     {
         Vector2 greater = new Vector2(Mathf.Abs(NormalizedDelta.x), Mathf.Abs(NormalizedDelta.y));
 

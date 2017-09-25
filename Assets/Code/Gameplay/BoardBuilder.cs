@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.Security.Cryptography.X509Certificates;
 using Code.Gameplay;
 using Code.Menu;
 using UnityEngine;
@@ -12,6 +13,7 @@ public class BoardBuilder : MonoBehaviour
     private float boardSpacer = 0.9f;
 
     private RectTransform trans;
+    private TileMover mover;
 
     void Start()
     {
@@ -19,6 +21,7 @@ public class BoardBuilder : MonoBehaviour
         GameOption opt = GetComponentInParent<GameOption>();
         SizeSelector.GameSize option = opt.Option;
 
+        mover = GetComponent<TileMover>();
 
         if(false)
         {
@@ -28,7 +31,10 @@ public class BoardBuilder : MonoBehaviour
         {
             //create a new game board
             BuildBoard(option.X, option.Y);
+            mover.boardSize = new Vector2(option.X, option.Y);
         }
+        
+        Destroy(opt);
     }
 
     private void BuildBoard(int boardX, int boardY)
@@ -54,10 +60,15 @@ public class BoardBuilder : MonoBehaviour
 
                 GameObject newSquare = Instantiate(SquarePrefab, squarePos, new Quaternion(), trans);
                 newSquare.name = x + " " + y;
+
+                Tile tile = newSquare.GetComponent<Tile>();
+                tile.GridPosition = new Vector2(x, y);
                 
                 RectTransform squareTrans = newSquare.GetComponent<RectTransform>();
                 squareTrans.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, squareSize.x * boardSpacer);
                 squareTrans.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, squareSize.y * boardSpacer);
+
+                mover.addNewTile(tile);
             }
         }
     }
