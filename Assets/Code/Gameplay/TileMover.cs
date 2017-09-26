@@ -421,6 +421,8 @@ namespace Code.Gameplay
             tilePositions.Add(replace.GridPosition, mover);
             PlaceEmptyTile(mover.GridPosition, mover.UiPosition);
 
+            mover.transform.SetAsLastSibling();
+
             if (moveNotMerge) mover.MoveTile(replace.GridPosition, replace.UiPosition, movementSpeed, replace);
             else
             {
@@ -443,6 +445,7 @@ namespace Code.Gameplay
         private void PlaceEmptyTile(Vector2 grid, Vector2 ui)
         {
             Tile tile = BoardBuilder.spareTiles.GetObject();
+            tile.transform.SetAsFirstSibling();
             tile.setEmpty(grid, ui, emptyTileColor);
             tile.gameObject.SetActive(true);
 
