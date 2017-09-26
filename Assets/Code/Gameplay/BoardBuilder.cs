@@ -1,7 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using System.Security.Cryptography.X509Certificates;
-using Code.Gameplay;
+﻿using Code.Gameplay;
 using Code.Menu;
 using Code.Reusable;
 using UnityEngine;
@@ -20,8 +17,17 @@ public class BoardBuilder : MonoBehaviour
 
     void Start()
     {
+        GameObject optionObject = GameObject.Find("GameSize");
+        if(optionObject == null)
+        {
+            Debug.LogError("GameOption component could be found therefore no Board settings can be extracted");
+            return;
+        }
+
+        GameOption opt = optionObject.GetComponent<GameOption>();
+        Destroy(optionObject);//remove it so that there will be no issues if the game mode is changed before the game finishes
+
         trans = gameObject.GetComponent<RectTransform>();
-        GameOption opt = GetComponentInParent<GameOption>();
         SizeSelector.GameSize option = opt.Option;
         spareTiles = new ObjectPool<Tile>(() => CreateTile(), 64, g => g.gameObject.activeInHierarchy, true);
 

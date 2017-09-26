@@ -48,7 +48,7 @@ namespace Code.Menu
 
         public void Play()
         {
-            //create a new gameobject to tell the game scene how it should play
+            //create a new gameObject to tell the game scene how it should play
             GameObject info = new GameObject();
             DontDestroyOnLoad(info);
 
