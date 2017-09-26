@@ -70,7 +70,7 @@ public class BoardBuilder : MonoBehaviour
                 newSquare.name = x + " " + y;
                 newSquare.transform.position = squarePos;
 
-                mover.addNewTile(tile);
+                mover.AddNewTile(tile);
             }
         }
     }

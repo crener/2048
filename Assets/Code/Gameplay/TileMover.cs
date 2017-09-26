@@ -238,15 +238,12 @@ namespace Code.Gameplay
                 }
             }
 
-            if (valid) Debug.Log("valid up move");
-            else Debug.Log("invalid up move");
+            Debug.Log(valid ? "valid up move" : "invalid up move");
 
             //move the tiles up
             foreach (Vector2 moveable in moveables)
             {
                 Tile instance = tilePositions[moveable], replace = null;
-                Vector2 moveGridLocation = new Vector2(-1f, -1f);
-                Vector2 moveUiLocation = new Vector2(-1f, -1f);
                 bool move = true;
 
                 //find the next move location
@@ -257,16 +254,12 @@ namespace Code.Gameplay
                     if (compare.Value == -1)
                     {
                         //move to empty field
-                        moveGridLocation = compare.GridPosition;
-                        moveUiLocation = compare.UiPosition;
                         replace = compare;
                         move = true;
                     }
                     else if (compare.Value == instance.Value)
                     {
                         //move to merge with another tile
-                        moveGridLocation = compare.GridPosition;
-                        moveUiLocation = compare.UiPosition;
                         replace = compare;
                         move = false;
                     }
@@ -275,21 +268,24 @@ namespace Code.Gameplay
                         break;
                 }
 
-                if(moveGridLocation == new Vector2(-1f, -1f)) continue;
+                if(replace == null) continue;
+                MoveTile(instance, replace, move);
+            }
+        }
 
-                //actual move the tile and update internal location
-                tilePositions.Remove(instance.GridPosition);
-                tilePositions.Remove(moveGridLocation);
-                tilePositions.Add(moveGridLocation, instance);
-                PlaceEmptyTile(instance.GridPosition, instance.UiPosition);
+        private void MoveTile(Tile mover, Tile replace, bool moveNotMerge)
+        {
+            //update internal board position information
+            tilePositions.Remove(mover.GridPosition);
+            tilePositions.Remove(replace.GridPosition);
+            tilePositions.Add(replace.GridPosition, mover);
+            PlaceEmptyTile(mover.GridPosition, mover.UiPosition);
 
-                if(move)
-                    instance.moveTile(moveGridLocation, moveUiLocation, MovementSpeed, replace);
-                else
-                {
-                    TileStyle style = getStyle(instance.Value * 2);
-                    instance.MergeTile(moveGridLocation, moveUiLocation, MovementSpeed, replace, style.Color, style.SecondaryTextColour ? SecondaryTextColour : primaryTextColour);
-                }
+            if (moveNotMerge) mover.moveTile(replace.GridPosition, replace.UiPosition, MovementSpeed, replace);
+            else
+            {
+                TileStyle style = getStyle(mover.Value * 2);
+                mover.MergeTile(replace.GridPosition, replace.UiPosition, MovementSpeed, replace, style.Color, style.SecondaryTextColour ? SecondaryTextColour : primaryTextColour);
             }
         }
 
@@ -309,10 +305,10 @@ namespace Code.Gameplay
             tile.setEmpty(grid, ui, emptyTileColor);
             tile.gameObject.SetActive(true);
 
-            addNewTile(tile);
+            AddNewTile(tile);
         }
 
-        public void addNewTile(Tile tile)
+        public void AddNewTile(Tile tile)
         {
             tilePositions.Add(tile.GridPosition, tile);
         }
