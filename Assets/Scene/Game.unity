@@ -298,7 +298,18 @@ MonoBehaviour:
       Culture=neutral, PublicKeyToken=null
   m_Right:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 1083837860}
+        m_MethodName: Right
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
     m_TypeName: GestureController+GestureEvent, Assembly-CSharp, Version=0.0.0.0,
       Culture=neutral, PublicKeyToken=null
   m_Down:
@@ -319,7 +330,18 @@ MonoBehaviour:
       Culture=neutral, PublicKeyToken=null
   m_Left:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 1083837860}
+        m_MethodName: Left
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
     m_TypeName: GestureController+GestureEvent, Assembly-CSharp, Version=0.0.0.0,
       Culture=neutral, PublicKeyToken=null
 --- !u!114 &1083837860
@@ -333,9 +355,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 85bebaa61cea96846b522cae50e7a735, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  scoreText: {fileID: 0}
+  scoreText: {fileID: 1220285716}
   primaryTextColour: {r: 0.19852942, g: 0.19852942, b: 0.19852942, a: 1}
-  SecondaryTextColour: {r: 0.9485294, g: 0.9485294, b: 0.9485294, a: 1}
+  secondaryTextColour: {r: 1, g: 1, b: 1, a: 1}
   Styles:
   - score: 2
     Color: {r: 0.89705884, g: 0.89705884, b: 0.89705884, a: 1}
@@ -370,13 +392,13 @@ MonoBehaviour:
   - score: 2048
     Color: {r: 1, g: 0.8482759, b: 0, a: 1}
     SecondaryTextColour: 1
-  UnknownTileStyle:
+  unknownTileStyle:
     score: -1
     Color: {r: 0, g: 0, b: 0, a: 1}
     SecondaryTextColour: 0
   emptyTileColor: {r: 0.6313726, g: 0.6313726, b: 0.6313726, a: 1}
-  MovementSpeed: 0.2
-  EdgeSpawn: 0.7
+  movementSpeed: 0.2
+  edgeSpawn: 0.7
   highScoreSpawn: 0.1
 --- !u!1 &1220285714
 GameObject:

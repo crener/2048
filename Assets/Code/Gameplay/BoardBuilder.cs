@@ -89,4 +89,11 @@ public class BoardBuilder : MonoBehaviour
 
         return tile;
     }
+
+#if ENABLE_PLAYMODE_TESTS_RUNNER
+    public void setPrefab(GameObject pre)
+    {
+        SquarePrefab = pre;
+    }
+#endif
 }

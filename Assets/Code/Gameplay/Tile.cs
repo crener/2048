@@ -19,7 +19,7 @@ namespace Code.Gameplay
 
         public int Value
         {
-            private set { value = value; }
+            private set { this.value = value; }
             get { return moving && merging ? value * 2 : value; }
         }
         private int value = -1;
@@ -47,10 +47,9 @@ namespace Code.Gameplay
                 Vector2 loc = Vector2.Lerp(start, end, passed / speed);
                 transform.position = loc;
 
-                if(passed >= speed)
+                if (passed >= speed)
                 {
-                    moving = false;
-                    ApplyMerge();
+                    FinishMoving();
                 }
             }
         }
@@ -78,15 +77,11 @@ namespace Code.Gameplay
             value = score;
         }
 
-        public void moveTile(Vector2 gridLocation, Vector2 uiLocation, float speed, Tile hide)
+        public void MoveTile(Vector2 gridLocation, Vector2 uiLocation, float speed, Tile hide)
         {
             GridPosition = gridLocation;
 
-            if(moving)
-            {
-                trans.position = end;
-                ApplyMerge();
-            }
+            FinishMoving();
 
             start = trans.position;
             end = uiLocation;
@@ -109,11 +104,7 @@ namespace Code.Gameplay
         {
             GridPosition = moveGridLocation;
 
-            if(moving)
-            {
-                trans.position = end;
-                ApplyMerge();
-            }
+            FinishMoving();
 
             start = trans.position;
             end = moveUiLocation;
@@ -127,16 +118,33 @@ namespace Code.Gameplay
             merging = true;
         }
 
-        private void ApplyMerge()
+        private void FinishMoving()
         {
-            hidden.gameObject.SetActive(false);
-            if (!merging) return;
+            if (moving)
+            {
+                trans.position = end;
+                moving = false;
 
-            merging = false;
-            value *= 2;
-            background.color = imgColour;
-            scoreText.color = textColour;
-            scoreText.text = value.ToString();
+                if (hidden != null) hidden.gameObject.SetActive(false);
+                hidden = null;
+
+                if (merging)
+                {
+                    merging = false;
+                    value *= 2;
+                    background.color = imgColour;
+                    scoreText.color = textColour;
+                    scoreText.text = value.ToString();
+                }
+            }
         }
+
+#if ENABLE_PLAYMODE_TESTS_RUNNER
+        internal void setSerials(Image img, Text txt)
+        {
+            background = img;
+            scoreText = txt;
+        }
+#endif
     }
 }

@@ -77,7 +77,8 @@ namespace Code.Menu
             public String Name = "";
             public int X = 0;
             public int Y = 0;
-            public bool first = false; //makes this the first to show up when game is loaded
+            [Tooltip("Sets this as the first item in the menu when the game is loaded")]
+            public bool first = false; 
 
             public int Compare(GameSize x, GameSize y)
             {

@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq.Expressions;
-using Code.Reusable;
 using UnityEngine;
 using UnityEngine.UI;
 using Random = UnityEngine.Random;
@@ -26,7 +24,7 @@ namespace Code.Gameplay
         [SerializeField]
         private Color secondaryTextColour = Color.white;
         [SerializeField]
-        private List<TileStyle> Styles;
+        private List<TileStyle> Styles = new List<TileStyle>(14);
         [SerializeField]
         private TileStyle unknownTileStyle;
         [SerializeField]
@@ -60,6 +58,7 @@ namespace Code.Gameplay
                     tilePositions.Add(tile.GridPosition, tile);
             }
 
+            if (Styles.Count == 0) Debug.LogError("There need to be at least 2 Styles set");
             Styles.Sort((a, b) => a.score.CompareTo(b.score));
 
             //set the initial tile to a state (If loading save game this doesn't matter)
@@ -215,61 +214,47 @@ namespace Code.Gameplay
         public void Up()
         {
             bool valid = false;
-            List<Vector2> moveables = new List<Vector2>();
 
-            //ensure that this is a valid move
             for (int x = 0; x < boardSize.x; x++)
             {
                 for (int y = 1; y < boardSize.y; y++)
                 {
-                    Tile testTile = tilePositions[new Vector2(x, y)];
+                    Tile testTile = tilePositions[new Vector2(x, y)], replace = null;
                     if (testTile.Value == -1) continue;
 
-                    //check tile above
-                    Tile aboveTile = tilePositions[new Vector2(x, y - 1)];
-                    if (aboveTile.Value == -1 || //can move due to empty tile
-                        aboveTile.Value == testTile.Value) //can move due to merge  
+                    bool move = true;
+
+                    //find the next move location (go down from this tile until an invalid tile is hit)
+                    for (int y2 = y - 1; y2 >= 0; y2--)
                     {
-                        valid = true;
-                        moveables.Add(new Vector2(x, y));
+                        Tile compare = tilePositions[new Vector2(x, y2)];
+
+                        if (compare.Value == -1)
+                        {
+                            //move to empty field
+                            replace = compare;
+                            move = true;
+                        }
+                        else if (compare.Value == testTile.Value)
+                        {
+                            //move to merge with another tile
+                            replace = compare;
+                            move = false;
+                            break;
+                        }
+                        else
+                            //stop looking since anything after this would involve going through a tile
+                            break;
                     }
+
+                    if (replace == null) continue;
+                    MoveTile(testTile, replace, move);
+                    valid = true;
                 }
             }
 
             Debug.Log(valid ? "valid up move" : "invalid up move");
             if (!valid) return;
-
-            //move the tiles up
-            foreach (Vector2 moveable in moveables)
-            {
-                Tile instance = tilePositions[moveable], replace = null;
-                bool move = true;
-
-                //find the next move location (go up from this tile until an invalid tile is hit)
-                for (int y = (int)moveable.y - 1; y >= 0; y--)
-                {
-                    Tile compare = tilePositions[new Vector2(instance.GridPosition.x, y)];
-
-                    if (compare.Value == -1)
-                    {
-                        //move to empty field
-                        replace = compare;
-                        move = true;
-                    }
-                    else if (compare.Value == instance.Value)
-                    {
-                        //move to merge with another tile
-                        replace = compare;
-                        move = false;
-                    }
-                    else
-                        //stop looking since anything after this would involve going through a tile
-                        break;
-                }
-
-                if (replace == null) continue;
-                MoveTile(instance, replace, move);
-            }
 
             PlaceNewTile(Direction.Up);
         }
@@ -277,63 +262,145 @@ namespace Code.Gameplay
         public void Down()
         {
             bool valid = false;
-            List<Vector2> moveables = new List<Vector2>();
 
-            //ensure that this is a valid move
             for (int x = 0; x < boardSize.x; x++)
             {
                 for (int y = (int)boardSize.y - 2; y >= 0; y--)
                 {
-                    Tile testTile = tilePositions[new Vector2(x, y)];
+                    Tile testTile = tilePositions[new Vector2(x, y)], replace = null;
                     if (testTile.Value == -1) continue;
 
-                    //check tile bellow
-                    Tile bellowTile = tilePositions[new Vector2(x, y + 1)];
-                    if (bellowTile.Value == -1 || //can move due to empty tile
-                        bellowTile.Value == testTile.Value) //can move due to merge  
+                    bool move = true;
+
+                    //find the next move location (go down from this tile until an invalid tile is hit)
+                    for (int y2 = y + 1; y2 < boardSize.y; y2++)
                     {
-                        valid = true;
-                        moveables.Add(new Vector2(x, y));
+                        Tile compare = tilePositions[new Vector2(x, y2)];
+
+                        if (compare.Value == -1)
+                        {
+                            //move to empty field
+                            replace = compare;
+                            move = true;
+                        }
+                        else if (compare.Value == testTile.Value)
+                        {
+                            //move to merge with another tile
+                            replace = compare;
+                            move = false;
+                            break;
+                        }
+                        else
+                            //stop looking since anything after this would involve going through a tile
+                            break;
                     }
+
+                    if (replace == null) continue;
+                    MoveTile(testTile, replace, move);
+                    valid = true;
                 }
             }
 
             Debug.Log(valid ? "valid down move" : "invalid down move");
-            if(!valid) return;
-
-            //move the tiles up
-            foreach (Vector2 moveable in moveables)
-            {
-                Tile instance = tilePositions[moveable], replace = null;
-                bool move = true;
-
-                //find the next move location (go down from this tile until an invalid tile is hit)
-                for (int y = (int)moveable.y; y < boardSize.y; y++)
-                {
-                    Tile compare = tilePositions[new Vector2(instance.GridPosition.x, y)];
-
-                    if (compare.Value == -1)
-                    {
-                        //move to empty field
-                        replace = compare;
-                        move = true;
-                    }
-                    else if (compare.Value == instance.Value)
-                    {
-                        //move to merge with another tile
-                        replace = compare;
-                        move = false;
-                    }
-                    else
-                        //stop looking since anything after this would involve going through a tile
-                        break;
-                }
-
-                if (replace == null) continue;
-                MoveTile(instance, replace, move);
-            }
+            if (!valid) return;
 
             PlaceNewTile(Direction.Down);
+        }
+
+        public void Left()
+        {
+            bool valid = false;
+
+            for (int y = 0; y < boardSize.y; y++)
+            {
+                for (int x = 1; x < boardSize.x; x++)
+                {
+                    Tile testTile = tilePositions[new Vector2(x, y)], replace = null;
+                    if (testTile.Value == -1) continue;
+
+                    bool move = true;
+
+                    //find the next move location (go left from this tile until an invalid tile is hit)
+                    for (int x2 = x - 1; x2 >= 0; x2--)
+                    {
+                        Tile compare = tilePositions[new Vector2(x2, y)];
+
+                        if (compare.Value == -1)
+                        {
+                            //move to empty field
+                            replace = compare;
+                            move = true;
+                        }
+                        else if (compare.Value == testTile.Value)
+                        {
+                            //move to merge with another tile
+                            replace = compare;
+                            move = false;
+                            break;
+                        }
+                        else
+                            //stop looking since anything after this would involve going through a tile
+                            break;
+                    }
+
+                    if (replace == null) continue;
+                    MoveTile(testTile, replace, move);
+                    valid = true;
+                }
+            }
+
+            Debug.Log(valid ? "valid left move" : "invalid left move");
+            if (!valid) return;
+
+            PlaceNewTile(Direction.Left);
+        }
+
+        public void Right()
+        {
+            bool valid = false;
+
+            //ensure that this is a valid move
+            for (int y = 0; y < boardSize.y; y++)
+            {
+                for (int x = (int)boardSize.x - 2; x >= 0; x--)
+                {
+                    Tile testTile = tilePositions[new Vector2(x, y)], replace = null;
+                    if (testTile.Value == -1) continue;
+
+                    bool move = true;
+
+                    for (int x2 = x + 1; x2 < boardSize.y; x2++)
+                    {
+                        Tile compare = tilePositions[new Vector2(x2, y)];
+
+                        if (compare.Value == -1)
+                        {
+                            //move to empty field
+                            replace = compare;
+                            move = true;
+                        }
+                        else if (compare.Value == testTile.Value)
+                        {
+                            //move to merge with another tile
+                            replace = compare;
+                            move = false;
+                            break;
+                        }
+                        else
+                            //stop looking since anything after this would involve going through a tile
+                            break;
+                    }
+
+                    if (replace == null) continue;
+                    MoveTile(testTile, replace, move);
+                    valid = true;
+                }
+            }
+
+            Debug.Log(valid ? "valid right move" : "invalid right move");
+            if (!valid) return;
+
+            PlaceNewTile(Direction.Right);
         }
 
         private void MoveTile(Tile mover, Tile replace, bool moveNotMerge)
@@ -344,7 +411,7 @@ namespace Code.Gameplay
             tilePositions.Add(replace.GridPosition, mover);
             PlaceEmptyTile(mover.GridPosition, mover.UiPosition);
 
-            if (moveNotMerge) mover.moveTile(replace.GridPosition, replace.UiPosition, movementSpeed, replace);
+            if (moveNotMerge) mover.MoveTile(replace.GridPosition, replace.UiPosition, movementSpeed, replace);
             else
             {
                 TileStyle style = getStyle(mover.Value * 2);
@@ -373,8 +440,27 @@ namespace Code.Gameplay
 
         public void AddNewTile(Tile tile)
         {
+            if (tilePositions.ContainsKey(tile.GridPosition))
+                tilePositions.Remove(tile.GridPosition);
+
             tilePositions.Add(tile.GridPosition, tile);
         }
+
+#if ENABLE_PLAYMODE_TESTS_RUNNER
+        internal Dictionary<Vector2, Tile> getBoardRepresentation()
+        {
+            return tilePositions;
+        }
+        internal void setBoardRepresentation(Dictionary<Vector2, Tile> newBoard)
+        {
+            tilePositions = newBoard;
+        }
+
+        internal void AddStyle(TileStyle style)
+        {
+            Styles.Add(style);
+        }
+#endif
     }
 
     [Serializable]
