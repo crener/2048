@@ -23,11 +23,11 @@ public class BoardBuilder : MonoBehaviour
         trans = gameObject.GetComponent<RectTransform>();
         GameOption opt = GetComponentInParent<GameOption>();
         SizeSelector.GameSize option = opt.Option;
-        spareTiles = new ObjectPool<Tile>(() => createTile(), 64, g=>gameObject.activeInHierarchy, true);
+        spareTiles = new ObjectPool<Tile>(() => CreateTile(), 64, g => g.gameObject.activeInHierarchy, true);
 
         mover = GetComponent<TileMover>();
 
-        if(false)
+        if (false)
         {
             //load the previous state
         }
@@ -53,14 +53,15 @@ public class BoardBuilder : MonoBehaviour
         topLeft += new Vector2(-Mathf.Abs(trans.rect.size.x / 2), Mathf.Abs(trans.rect.size.y / 2));
         topLeft += squareSize / 2; //add half square size here once rather than X*Y times within the loop
 
-        for(int y = 0; y < boardY; y++)
+        for (int y = 0; y < boardY; y++)
         {
-            for(int x = 0; x < boardX; x++)
+            for (int x = 0; x < boardX; x++)
             {
-                Vector2 squarePos = new Vector2
+                Vector3 squarePos = new Vector3
                 {
                     x = topLeft.x + (squareSize.x * x),
-                    y = topLeft.y - (squareSize.y * (y + 1))
+                    y = topLeft.y - (squareSize.y * (y + 1)),
+                    z = -1f
                 };
 
                 Tile tile = spareTiles.GetObject();
@@ -75,7 +76,7 @@ public class BoardBuilder : MonoBehaviour
         }
     }
 
-    private Tile createTile()
+    private Tile CreateTile()
     {
         GameObject newSquare = Instantiate(SquarePrefab, Vector3.zero, new Quaternion(), trans);
         newSquare.name = "newTile";
@@ -85,7 +86,7 @@ public class BoardBuilder : MonoBehaviour
         RectTransform squareTrans = newSquare.GetComponent<RectTransform>();
         squareTrans.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, squareSize.x * boardSpacer);
         squareTrans.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, squareSize.y * boardSpacer);
-        
+
         return tile;
     }
 }

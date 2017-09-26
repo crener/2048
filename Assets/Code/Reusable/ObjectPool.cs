@@ -9,7 +9,7 @@ namespace Code.Reusable
         Func<T> clone;
         int capacity;
         List<T> storage;
-        Func<T, bool> useTest;
+        Func<T, bool> inUse;
         bool expandable;
 
         /// <summary>
@@ -24,7 +24,7 @@ namespace Code.Reusable
             clone = productionMethod;
             capacity = maxSize;
             storage = new List<T>(maxSize);
-            useTest = objectInUse;
+            inUse = objectInUse;
             this.expandable = expandable;
         }
 
@@ -38,7 +38,7 @@ namespace Code.Reusable
             //look for a usable item
             foreach (T thing in storage)
             {
-                if (!useTest(thing)) return thing;
+                if (!inUse(thing)) return thing;
             }
 
             //if there aren't any expand the array 

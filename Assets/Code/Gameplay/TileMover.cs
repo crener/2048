@@ -24,19 +24,19 @@ namespace Code.Gameplay
         [SerializeField]
         private Color primaryTextColour = Color.black;
         [SerializeField]
-        private Color SecondaryTextColour = Color.white;
+        private Color secondaryTextColour = Color.white;
         [SerializeField]
         private List<TileStyle> Styles;
         [SerializeField]
-        private TileStyle UnknownTileStyle;
+        private TileStyle unknownTileStyle;
         [SerializeField]
         private Color emptyTileColor = Color.grey;
         [Header("Tile Movement Settings")]
         [SerializeField, Tooltip("Time (seconds) it takes to complete one move across the board")]
-        private float MovementSpeed = 0.2f;
+        private float movementSpeed = 0.2f;
         [Header("Game Balance")]
         [SerializeField, Range(0, 1), Tooltip("Change that a tile will spawn around the edge")]
-        private float EdgeSpawn = 0.7f;
+        private float edgeSpawn = 0.7f;
         [SerializeField, Range(0, 1), Tooltip("Chance of getting a high point value to spawn")]
         private float highScoreSpawn = 0.1f;
 
@@ -65,7 +65,6 @@ namespace Code.Gameplay
             //set the initial tile to a state (If loading save game this doesn't matter)
             if (score == 0)
             {
-                //find a tile around the edge of the board
                 Tile edge1 = FindEmptyEdgeTile();
                 SpawnTile(edge1, true);
                 Tile edge2 = FindEmptyEdgeTile();
@@ -116,17 +115,17 @@ namespace Code.Gameplay
 
                 if (edge == Direction.Up || edge == Direction.Down)
                 {
-                    x = (int)Random.Range(0, boardSize.x);
+                    x = (int)Random.Range(0, boardSize.x - 1);
 
                     if (edge == Direction.Up) y = 0;
-                    else if (edge == Direction.Down) y = (int)boardSize.y;
+                    else if (edge == Direction.Down) y = (int)boardSize.y - 1;
                 }
                 else if (edge == Direction.Left || edge == Direction.Right)
                 {
-                    y = (int)Random.Range(0, boardSize.y);
+                    y = (int)Random.Range(0, boardSize.y - 1);
 
                     if (edge == Direction.Left) x = 0;
-                    else if (edge == Direction.Right) x = (int)boardSize.x;
+                    else if (edge == Direction.Right) x = (int)boardSize.x - 1;
                 }
 
                 if (!tilePositions.ContainsKey(new Vector2(x, y)))
@@ -169,7 +168,7 @@ namespace Code.Gameplay
 
         public void PlaceNewTile(Direction previousDirection)
         {
-            bool directionSpawn = EdgeSpawn > Random.Range(0f, 1f);
+            bool directionSpawn = edgeSpawn > Random.Range(0f, 1f);
 
             Tile change;
             if (directionSpawn)
@@ -210,7 +209,7 @@ namespace Code.Gameplay
         private void SpawnTile(Tile tile, bool forceLow = false)
         {
             TileStyle style = forceLow ? Styles[0] : highScoreSpawn > Random.Range(0, 1) ? Styles[0] : Styles[1];
-            tile.setTile(style.score, style.Color, style.SecondaryTextColour ? SecondaryTextColour : primaryTextColour);
+            tile.setTile(style.score, style.Color, style.SecondaryTextColour ? secondaryTextColour : primaryTextColour);
         }
 
         public void Up()
@@ -223,22 +222,22 @@ namespace Code.Gameplay
             {
                 for (int y = 1; y < boardSize.y; y++)
                 {
-                    //check tile above
                     Tile testTile = tilePositions[new Vector2(x, y)];
                     if (testTile.Value == -1) continue;
-                    else
+
+                    //check tile above
+                    Tile aboveTile = tilePositions[new Vector2(x, y - 1)];
+                    if (aboveTile.Value == -1 || //can move due to empty tile
+                        aboveTile.Value == testTile.Value) //can move due to merge  
                     {
-                        if (tilePositions[new Vector2(x, y - 1)].Value == -1 || //can move due to empty tile
-                           tilePositions[new Vector2(x, y - 1)].Value == testTile.Value) //can move due to merdge  
-                        {
-                            valid = true;
-                            moveables.Add(new Vector2(x, y));
-                        }
+                        valid = true;
+                        moveables.Add(new Vector2(x, y));
                     }
                 }
             }
 
             Debug.Log(valid ? "valid up move" : "invalid up move");
+            if (!valid) return;
 
             //move the tiles up
             foreach (Vector2 moveable in moveables)
@@ -246,7 +245,7 @@ namespace Code.Gameplay
                 Tile instance = tilePositions[moveable], replace = null;
                 bool move = true;
 
-                //find the next move location
+                //find the next move location (go up from this tile until an invalid tile is hit)
                 for (int y = (int)moveable.y - 1; y >= 0; y--)
                 {
                     Tile compare = tilePositions[new Vector2(instance.GridPosition.x, y)];
@@ -268,9 +267,73 @@ namespace Code.Gameplay
                         break;
                 }
 
-                if(replace == null) continue;
+                if (replace == null) continue;
                 MoveTile(instance, replace, move);
             }
+
+            PlaceNewTile(Direction.Up);
+        }
+
+        public void Down()
+        {
+            bool valid = false;
+            List<Vector2> moveables = new List<Vector2>();
+
+            //ensure that this is a valid move
+            for (int x = 0; x < boardSize.x; x++)
+            {
+                for (int y = (int)boardSize.y - 2; y >= 0; y--)
+                {
+                    Tile testTile = tilePositions[new Vector2(x, y)];
+                    if (testTile.Value == -1) continue;
+
+                    //check tile bellow
+                    Tile bellowTile = tilePositions[new Vector2(x, y + 1)];
+                    if (bellowTile.Value == -1 || //can move due to empty tile
+                        bellowTile.Value == testTile.Value) //can move due to merge  
+                    {
+                        valid = true;
+                        moveables.Add(new Vector2(x, y));
+                    }
+                }
+            }
+
+            Debug.Log(valid ? "valid down move" : "invalid down move");
+            if(!valid) return;
+
+            //move the tiles up
+            foreach (Vector2 moveable in moveables)
+            {
+                Tile instance = tilePositions[moveable], replace = null;
+                bool move = true;
+
+                //find the next move location (go down from this tile until an invalid tile is hit)
+                for (int y = (int)moveable.y; y < boardSize.y; y++)
+                {
+                    Tile compare = tilePositions[new Vector2(instance.GridPosition.x, y)];
+
+                    if (compare.Value == -1)
+                    {
+                        //move to empty field
+                        replace = compare;
+                        move = true;
+                    }
+                    else if (compare.Value == instance.Value)
+                    {
+                        //move to merge with another tile
+                        replace = compare;
+                        move = false;
+                    }
+                    else
+                        //stop looking since anything after this would involve going through a tile
+                        break;
+                }
+
+                if (replace == null) continue;
+                MoveTile(instance, replace, move);
+            }
+
+            PlaceNewTile(Direction.Down);
         }
 
         private void MoveTile(Tile mover, Tile replace, bool moveNotMerge)
@@ -281,22 +344,22 @@ namespace Code.Gameplay
             tilePositions.Add(replace.GridPosition, mover);
             PlaceEmptyTile(mover.GridPosition, mover.UiPosition);
 
-            if (moveNotMerge) mover.moveTile(replace.GridPosition, replace.UiPosition, MovementSpeed, replace);
+            if (moveNotMerge) mover.moveTile(replace.GridPosition, replace.UiPosition, movementSpeed, replace);
             else
             {
                 TileStyle style = getStyle(mover.Value * 2);
-                mover.MergeTile(replace.GridPosition, replace.UiPosition, MovementSpeed, replace, style.Color, style.SecondaryTextColour ? SecondaryTextColour : primaryTextColour);
+                mover.MergeTile(replace.GridPosition, replace.UiPosition, movementSpeed, replace, style.Color, style.SecondaryTextColour ? secondaryTextColour : primaryTextColour);
             }
         }
 
         private TileStyle getStyle(int i)
         {
-            foreach(TileStyle style in Styles)
+            foreach (TileStyle style in Styles)
             {
-                if(style.score == i) return style;
+                if (style.score == i) return style;
             }
 
-            return UnknownTileStyle;
+            return unknownTileStyle;
         }
 
         private void PlaceEmptyTile(Vector2 grid, Vector2 ui)
