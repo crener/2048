@@ -136,7 +136,7 @@ namespace Code.Gameplay
             TileMover mover = builder.AddComponent<TileMover>();
             mover.AddStyle(new TileStyle { Color = Color.yellow, score = 2, SecondaryTextColour = false });
             mover.AddStyle(new TileStyle { Color = Color.red, score = 4, SecondaryTextColour = false });
-            mover.score = 1;
+            mover.Score = 1;
 
             return mover;
         }

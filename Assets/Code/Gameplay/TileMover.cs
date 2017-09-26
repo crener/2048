@@ -38,10 +38,20 @@ namespace Code.Gameplay
         [SerializeField, Range(0, 1), Tooltip("Chance of getting a high point value to spawn")]
         private float highScoreSpawn = 0.1f;
 
-        public int score { get; set; }
+        public int Score
+        {
+            get { return score; }
+            set
+            {
+                score = value;
+                if(scoreText != null) scoreText.text = score.ToString("N0");
+            }
+        }
+
         public Vector2 boardSize { get; set; }
 
         private Dictionary<Vector2, Tile> tilePositions = new Dictionary<Vector2, Tile>();
+        private int score;
 
         void Start()
         {
@@ -62,7 +72,7 @@ namespace Code.Gameplay
             Styles.Sort((a, b) => a.score.CompareTo(b.score));
 
             //set the initial tile to a state (If loading save game this doesn't matter)
-            if (score == 0)
+            if (Score == 0)
             {
                 Tile edge1 = FindEmptyEdgeTile();
                 SpawnTile(edge1, true);
@@ -414,6 +424,7 @@ namespace Code.Gameplay
             if (moveNotMerge) mover.MoveTile(replace.GridPosition, replace.UiPosition, movementSpeed, replace);
             else
             {
+                Score += mover.Value * 2;
                 TileStyle style = getStyle(mover.Value * 2);
                 mover.MergeTile(replace.GridPosition, replace.UiPosition, movementSpeed, replace, style.Color, style.SecondaryTextColour ? secondaryTextColour : primaryTextColour);
             }
