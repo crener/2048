@@ -13,7 +13,7 @@ namespace Code.Gameplay
         void Start()
         {
             //preInit will be true by the time that start is called so flip self destruct instead
-            if(preInit && selfDestruct) Destroy(gameObject);
+            if (preInit && selfDestruct) Destroy(gameObject);
             else selfDestruct = true;
         }
 

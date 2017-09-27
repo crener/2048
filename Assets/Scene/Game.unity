@@ -294,7 +294,7 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
-    m_TypeName: GestureController+GestureEvent, Assembly-CSharp, Version=0.0.0.0,
+    m_TypeName: Code.Gameplay.GestureController+GestureEvent, Assembly-CSharp, Version=0.0.0.0,
       Culture=neutral, PublicKeyToken=null
   m_Right:
     m_PersistentCalls:
@@ -310,7 +310,7 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
-    m_TypeName: GestureController+GestureEvent, Assembly-CSharp, Version=0.0.0.0,
+    m_TypeName: Code.Gameplay.GestureController+GestureEvent, Assembly-CSharp, Version=0.0.0.0,
       Culture=neutral, PublicKeyToken=null
   m_Down:
     m_PersistentCalls:
@@ -326,7 +326,7 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
-    m_TypeName: GestureController+GestureEvent, Assembly-CSharp, Version=0.0.0.0,
+    m_TypeName: Code.Gameplay.GestureController+GestureEvent, Assembly-CSharp, Version=0.0.0.0,
       Culture=neutral, PublicKeyToken=null
   m_Left:
     m_PersistentCalls:
@@ -342,7 +342,7 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
-    m_TypeName: GestureController+GestureEvent, Assembly-CSharp, Version=0.0.0.0,
+    m_TypeName: Code.Gameplay.GestureController+GestureEvent, Assembly-CSharp, Version=0.0.0.0,
       Culture=neutral, PublicKeyToken=null
 --- !u!114 &1083837860
 MonoBehaviour:
@@ -807,7 +807,7 @@ MonoBehaviour:
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 2125444848}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 1077351063, guid: f5f67c52d1564df4a8936ccd202a3bd8, type: 3}
   m_Name: 

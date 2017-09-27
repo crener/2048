@@ -44,7 +44,7 @@ namespace Code.Gameplay
             set
             {
                 score = value;
-                if(scoreText != null) scoreText.text = score.ToString("N0");
+                if (scoreText != null) scoreText.text = score.ToString("N0");
             }
         }
 
@@ -175,9 +175,11 @@ namespace Code.Gameplay
             return edgeTile;
         }
 
-        public void PlaceNewTile(Direction previousDirection)
+        private void PlaceNewTile(Direction previousDirection)
         {
-            bool directionSpawn = edgeSpawn > Random.Range(0f, 1f);
+            if(!CheckForEmptyTile()) return;
+
+            bool directionSpawn = CheckForEmptyEdgeTile() && edgeSpawn > Random.Range(0f, 1f);
 
             Tile change;
             if (directionSpawn)
@@ -186,6 +188,68 @@ namespace Code.Gameplay
                 change = FindEmptyTile();
 
             SpawnTile(change);
+        }
+
+        private bool isEndOfGame()
+        {
+            if(CheckForEmptyTile()) return false;
+
+            //there are no more empty tiles so check for possible moves
+
+            return true;
+        }
+
+        private bool CheckForEmptyTile()
+        {
+            foreach (Tile tilePosition in tilePositions.Values)
+                if (tilePosition.Value != -1) return true;
+            return false;
+        }
+
+        private bool CheckForEmptyEdgeTile()
+        {
+            //top
+            for (int x = 0; x < boardSize.x; x++)
+                if (tilePositions[new Vector2(x, 0)].Value != -1) return true;
+
+            //bottom
+            for (int x = 0; x < boardSize.x; x++)
+                if (tilePositions[new Vector2(x, boardSize.y - 1)].Value != -1) return true;
+
+            //middle left
+            for (int y = 1; y < boardSize.y - 1; y++)
+                if (tilePositions[new Vector2(0, y)].Value != -1) return true;
+
+            //middle right
+            for (int y = 1; y < boardSize.y - 1; y++)
+                if (tilePositions[new Vector2(boardSize.x - 1, y)].Value != -1) return true;
+
+            return false;
+        }
+
+        private void OnDrawGizmosSelected()
+        {
+            //top
+            for(int x = 0; x < boardSize.x; x++)
+                Draw(tilePositions[new Vector2(x, 0)].UiPosition, Color.blue);
+
+            //bottom
+            for (int x = 0; x < boardSize.x; x++)
+                Draw(tilePositions[new Vector2(x, boardSize.y - 1)].UiPosition, Color.blue);
+
+            //left middle
+            for (int y = 1; y < boardSize.y - 1; y++)
+                Draw(tilePositions[new Vector2(0, y)].UiPosition, Color.red);
+
+            //right middle
+            for (int y = 1; y < boardSize.y - 1; y++)
+                Draw(tilePositions[new Vector2(boardSize.x - 1, y)].UiPosition, Color.red);
+        }
+
+        private void Draw(Vector2 pos, Color col)
+        {
+            Debug.DrawLine(pos - (Vector2.left * 3), pos - (Vector2.right * 3), col);
+            Debug.DrawLine(pos - (Vector2.up * 3), pos - (Vector2.down * 3), col);
         }
 
         private Direction OppositeSide(Direction dir)
@@ -203,11 +267,6 @@ namespace Code.Gameplay
                 default:
                     throw new ArgumentOutOfRangeException("dir", dir, null);
             }
-        }
-
-        private void SpawnTile(int x, int y)
-        {
-            SpawnTile(tilePositions[new Vector2(x, y)]);
         }
 
         /// <summary>
