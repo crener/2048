@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Assets.Code.Reusable;
 using UnityEngine;
 using UnityEngine.UI;
 using Random = UnityEngine.Random;
@@ -18,6 +19,8 @@ namespace Code.Gameplay
 
         [SerializeField]
         private Text scoreText;
+        [SerializeField]
+        private int historyLength = 3;
         [Header("Tile Colour Settings")]
         [SerializeField]
         private Color primaryTextColour = Color.black;
@@ -51,6 +54,7 @@ namespace Code.Gameplay
         public Vector2 boardSize { get; set; }
 
         private Dictionary<Vector2, Tile> tilePositions = new Dictionary<Vector2, Tile>();
+        private DropOutStack<BoardState> history;
         private int score;
 
         void Start()
@@ -79,6 +83,9 @@ namespace Code.Gameplay
                 Tile edge2 = FindEmptyEdgeTile();
                 SpawnTile(edge2, true);
             }
+
+            history = new DropOutStack<BoardState>(historyLength);
+            UpdateHistory(); //save initial state
         }
 
         private Tile FindEmptyEdgeTile()
@@ -177,7 +184,7 @@ namespace Code.Gameplay
 
         private void PlaceNewTile(Direction previousDirection)
         {
-            if(!CheckForEmptyTile()) return;
+            if (!CheckForEmptyTile()) return;
 
             bool directionSpawn = CheckForEmptyEdgeTile() && edgeSpawn > Random.Range(0f, 1f);
 
@@ -192,7 +199,7 @@ namespace Code.Gameplay
 
         private bool isEndOfGame()
         {
-            if(CheckForEmptyTile()) return false;
+            if (CheckForEmptyTile()) return false;
 
             //there are no more empty tiles so check for possible moves
 
@@ -230,7 +237,7 @@ namespace Code.Gameplay
         private void OnDrawGizmosSelected()
         {
             //top
-            for(int x = 0; x < boardSize.x; x++)
+            for (int x = 0; x < boardSize.x; x++)
                 Draw(tilePositions[new Vector2(x, 0)].UiPosition, Color.blue);
 
             //bottom
@@ -326,6 +333,7 @@ namespace Code.Gameplay
             if (!valid) return;
 
             PlaceNewTile(Direction.Up);
+            UpdateHistory();
         }
 
         public void Down()
@@ -374,6 +382,7 @@ namespace Code.Gameplay
             if (!valid) return;
 
             PlaceNewTile(Direction.Down);
+            UpdateHistory();
         }
 
         public void Left()
@@ -422,6 +431,7 @@ namespace Code.Gameplay
             if (!valid) return;
 
             PlaceNewTile(Direction.Left);
+            UpdateHistory();
         }
 
         public void Right()
@@ -470,6 +480,7 @@ namespace Code.Gameplay
             if (!valid) return;
 
             PlaceNewTile(Direction.Right);
+            UpdateHistory();
         }
 
         private void MoveTile(Tile mover, Tile replace, bool moveNotMerge)
@@ -489,6 +500,27 @@ namespace Code.Gameplay
                 TileStyle style = getStyle(mover.Value * 2);
                 mover.MergeTile(replace.GridPosition, replace.UiPosition, movementSpeed, replace, style.Color, style.SecondaryTextColour ? secondaryTextColour : primaryTextColour);
             }
+
+        }
+
+        private void UpdateHistory()
+        {
+            BoardState state = new BoardState((int) boardSize.x, (int) boardSize.y);
+            state.Score = score;
+
+            foreach (KeyValuePair<Vector2, Tile> tile in tilePositions)
+            {
+                int position = ((int) tile.Key.y * (int) boardSize.x) + (int) tile.Key.x;
+
+                TileState tileState = new TileState();
+                tileState.gridX = (int) tile.Key.x;
+                tileState.gridX = (int) tile.Key.y;
+                tileState.Points = tile.Value.Value;
+
+                state.tiles[position] = tileState;
+            }
+
+            history.Push(state);
         }
 
         private TileStyle getStyle(int i)
@@ -539,7 +571,7 @@ namespace Code.Gameplay
             unknownTileStyle = style;
         }
 
-        public float DirectionChance {set { edgeSpawn = value; } }
+        public float DirectionChance { set { edgeSpawn = value; } }
 #endif
     }
 
@@ -549,5 +581,32 @@ namespace Code.Gameplay
         public int score = -1;
         public Color Color = Color.black;
         public bool SecondaryTextColour = false;
+    }
+
+    internal struct BoardState
+    {
+        public TileState[] tiles;
+        public int BoardWidth, BoardHeight, Score;
+
+        public BoardState(int width, int height)
+        {
+            BoardHeight = height;
+            BoardWidth = width;
+            Score = 0;
+
+            tiles = new TileState[width * height];
+        }
+    }
+
+    internal class TileState
+    {
+        public int gridX, gridY, Points;
+
+        public TileState()
+        {
+            gridX = -1;
+            gridY = -1;
+            Points = -1;
+        }
     }
 }

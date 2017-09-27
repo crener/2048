@@ -93,11 +93,8 @@ namespace Code.Gameplay
 
         private void OnDrawGizmosSelected()
         {
-            {
-                Vector3 loc = UiPosition;
-                Debug.DrawLine(loc + Vector3.left, loc + Vector3.right, Color.yellow);
-                Debug.DrawLine(loc + Vector3.up, loc + Vector3.down, Color.yellow);
-            }
+            if(moving)
+                Debug.DrawLine(start, end, merging ? Color.magenta : Color.green);
         }
 
         internal void MergeTile(Vector2 moveGridLocation, Vector2 moveUiLocation, float movementSpeed, Tile replace, Color styleColor, Color textColor)

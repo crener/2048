@@ -33,6 +33,7 @@ namespace Code.Test
             {
                 yield return null;
                 tile.Down(); //break the play field
+                yield return null;
             }
             yield return new WaitForSeconds(0.5f); //wait for all tiles to move were they should go
 

@@ -29,7 +29,8 @@ public class BoardBuilder : MonoBehaviour
 
         trans = gameObject.GetComponent<RectTransform>();
         SizeSelector.GameSize option = opt.Option;
-        spareTiles = new ObjectPool<Tile>(() => CreateTile(), 64, g => g.gameObject.activeInHierarchy, true);
+        int boardSize = option.X * option.Y;
+        spareTiles = new ObjectPool<Tile>(() => CreateTile(), boardSize * 2, g => g.gameObject.activeInHierarchy, true);
 
         mover = GetComponent<TileMover>();
 
