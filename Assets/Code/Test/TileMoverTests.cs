@@ -42,12 +42,10 @@ namespace Code.Gameplay
             return MoveTests(size, positions, expected, valid, TileMover.Direction.Left);
         }
 
-
         protected IEnumerator RightTests(BoardSize size, TileValue[] positions, TileValue[] expected, bool valid)
         {
             return MoveTests(size, positions, expected, valid, TileMover.Direction.Right);
         }
-
 
         protected IEnumerator DownTests(BoardSize size, TileValue[] positions, TileValue[] expected, bool valid)
         {
@@ -68,16 +66,14 @@ namespace Code.Gameplay
 
             Dictionary<Vector2, Tile> board = mover.getBoardRepresentation();
             foreach (TileValue position in positions)
-            {
                 board[position.Grid].setTile(position.Val, Color.blue, Color.black);
-            }
 
             yield return null;
             yield return null;
 
             LogAssert.Expect(LogType.Log, (valid ? "valid " : "invalid ") + dir.ToString().ToLower() + " move");
 
-            switch(dir)
+            switch (dir)
             {
                 case TileMover.Direction.Up:
                     mover.Up();
@@ -106,14 +102,17 @@ namespace Code.Gameplay
             }
         }
 
-        private TileMover SetupBasicField(BoardSize size)
+        protected TileMover SetupBasicField(BoardSize size)
         {
+            GameObject gameSize = new GameObject("GameSize");
+            {
+                GameOption settings = gameSize.AddComponent<GameOption>();
+                settings.Option = new SizeSelector.GameSize() { X = size.X, Y = size.Y, Name = "test" };
+            }
+
             GameObject root = new GameObject("root");
             {
                 root.AddComponent<Canvas>();
-
-                GameOption settings = root.AddComponent<GameOption>();
-                settings.Option = new SizeSelector.GameSize() { X = size.X, Y = size.Y, Name = "test" };
             }
 
             GameObject tile = new GameObject("Tile", new[] { typeof(Tile), typeof(Image) });
@@ -137,6 +136,8 @@ namespace Code.Gameplay
             mover.AddStyle(new TileStyle { Color = Color.yellow, score = 2, SecondaryTextColour = false });
             mover.AddStyle(new TileStyle { Color = Color.red, score = 4, SecondaryTextColour = false });
             mover.Score = 1;
+
+            mover.AddUnknownStyle(new TileStyle { Color = Color.black, score = 4, SecondaryTextColour = true});
 
             return mover;
         }

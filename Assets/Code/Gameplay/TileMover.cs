@@ -533,6 +533,13 @@ namespace Code.Gameplay
         {
             Styles.Add(style);
         }
+
+        internal void AddUnknownStyle(TileStyle style)
+        {
+            unknownTileStyle = style;
+        }
+
+        public float DirectionChance {set { edgeSpawn = value; } }
 #endif
     }
 
