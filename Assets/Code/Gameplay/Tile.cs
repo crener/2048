@@ -74,6 +74,9 @@ namespace Code.Gameplay
             setEmpty(colour);
             GridPosition = gridPos;
             transform.position = new Vector3(worldPos.x, worldPos.y, -1f);
+
+            moving = false;
+            merging = false;
         }
 
         public void setTile(int score, Color colour, Color fontColour)
@@ -83,6 +86,9 @@ namespace Code.Gameplay
             scoreText.text = score.ToString();
             scoreText.color = fontColour;
             value = score;
+
+            moving = false;
+            merging = false;
         }
 
         public void MoveTile(Vector2 gridLocation, Vector2 uiLocation, float speed, Tile hide)
@@ -152,6 +158,11 @@ namespace Code.Gameplay
         }
 
 #if ENABLE_PLAYMODE_TESTS_RUNNER
+        /// <summary>
+        /// TEST ONLY sets the values which are usually set by Unity
+        /// </summary>
+        /// <param name="img"></param>
+        /// <param name="txt"></param>
         internal void setSerials(Image img, Text txt)
         {
             background = img;

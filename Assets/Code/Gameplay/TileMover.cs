@@ -202,6 +202,42 @@ namespace Code.Gameplay
             if (CheckForEmptyTile()) return false;
 
             //there are no more empty tiles so check for possible moves
+            for (int x = 0; x < boardSize.x - 1; x++)
+            {
+                for (int y = 0; y < boardSize.y - 1; y++)
+                {
+                    //go though each tile and check if a tile can move
+                    Tile tile = tilePositions[new Vector2(x, y)];
+
+                    //up
+                    if (y != 0)
+                    {
+                        Tile upTile = tilePositions[new Vector2(x, y - 1)];
+                        if (upTile.Value == tile.Value || upTile.Value == -1) return false;
+                    }
+
+                    //down
+                    if (y != (int)boardSize.y - 1)
+                    {
+                        Tile downTile = tilePositions[new Vector2(x, y + 1)];
+                        if (downTile.Value == tile.Value || downTile.Value == -1) return false;
+                    }
+
+                    //left
+                    if (x != 0)
+                    {
+                        Tile leftTile = tilePositions[new Vector2(x - 1, y)];
+                        if (leftTile.Value == tile.Value || leftTile.Value == -1) return false;
+                    }
+
+                    //right
+                    if (x != (int)boardSize.x - 1)
+                    {
+                        Tile rightTile = tilePositions[new Vector2(x + 1, y)];
+                        if (rightTile.Value == tile.Value || rightTile.Value == -1) return false;
+                    }
+                }
+            }
 
             return true;
         }
@@ -324,6 +360,7 @@ namespace Code.Gameplay
                     }
 
                     if (replace == null) continue;
+                    if (valid == false) UpdateHistory(); //only updates history once you know changes will happen
                     MoveTile(testTile, replace, move);
                     valid = true;
                 }
@@ -333,7 +370,6 @@ namespace Code.Gameplay
             if (!valid) return;
 
             PlaceNewTile(Direction.Up);
-            UpdateHistory();
         }
 
         public void Down()
@@ -373,6 +409,7 @@ namespace Code.Gameplay
                     }
 
                     if (replace == null) continue;
+                    if (valid == false) UpdateHistory(); //only updates history once you know changes will happen
                     MoveTile(testTile, replace, move);
                     valid = true;
                 }
@@ -382,7 +419,6 @@ namespace Code.Gameplay
             if (!valid) return;
 
             PlaceNewTile(Direction.Down);
-            UpdateHistory();
         }
 
         public void Left()
@@ -422,6 +458,7 @@ namespace Code.Gameplay
                     }
 
                     if (replace == null) continue;
+                    if (valid == false) UpdateHistory(); //only updates history once you know changes will happen
                     MoveTile(testTile, replace, move);
                     valid = true;
                 }
@@ -431,7 +468,6 @@ namespace Code.Gameplay
             if (!valid) return;
 
             PlaceNewTile(Direction.Left);
-            UpdateHistory();
         }
 
         public void Right()
@@ -471,6 +507,7 @@ namespace Code.Gameplay
                     }
 
                     if (replace == null) continue;
+                    if (valid == false) UpdateHistory(); //only updates history once you know changes will happen
                     MoveTile(testTile, replace, move);
                     valid = true;
                 }
@@ -480,7 +517,6 @@ namespace Code.Gameplay
             if (!valid) return;
 
             PlaceNewTile(Direction.Right);
-            UpdateHistory();
         }
 
         private void MoveTile(Tile mover, Tile replace, bool moveNotMerge)
@@ -498,29 +534,49 @@ namespace Code.Gameplay
             {
                 Score += mover.Value * 2;
                 TileStyle style = getStyle(mover.Value * 2);
-                mover.MergeTile(replace.GridPosition, replace.UiPosition, movementSpeed, replace, style.Color, style.SecondaryTextColour ? secondaryTextColour : primaryTextColour);
+                mover.MergeTile(replace.GridPosition, replace.UiPosition, movementSpeed, replace,
+                    style.Color, style.SecondaryTextColour ? secondaryTextColour : primaryTextColour);
             }
-
         }
 
         private void UpdateHistory()
         {
-            BoardState state = new BoardState((int) boardSize.x, (int) boardSize.y);
+            BoardState state = new BoardState((int)boardSize.x, (int)boardSize.y);
             state.Score = score;
 
             foreach (KeyValuePair<Vector2, Tile> tile in tilePositions)
             {
-                int position = ((int) tile.Key.y * (int) boardSize.x) + (int) tile.Key.x;
+                int position = ((int)tile.Key.y * (int)boardSize.x) + (int)tile.Key.x;
 
                 TileState tileState = new TileState();
-                tileState.gridX = (int) tile.Key.x;
-                tileState.gridX = (int) tile.Key.y;
+                tileState.gridX = (int)tile.Key.x;
+                tileState.gridY = (int)tile.Key.y;
                 tileState.Points = tile.Value.Value;
 
                 state.tiles[position] = tileState;
             }
 
             history.Push(state);
+        }
+
+        public void Back()
+        {
+            BoardState state = history.Pop();
+            if (state == null) return;
+
+            foreach (TileState tile in state.tiles)
+            {
+                if (tile.Points == -1)
+                {
+                    tilePositions[new Vector2(tile.gridX, tile.gridY)].setEmpty(emptyTileColor);
+                }
+                else
+                {
+                    TileStyle style = getStyle(tile.Points);
+                    tilePositions[new Vector2(tile.gridX, tile.gridY)].setTile(tile.Points, style.Color,
+                        style.SecondaryTextColour ? secondaryTextColour : primaryTextColour);
+                }
+            }
         }
 
         private TileStyle getStyle(int i)
@@ -583,7 +639,7 @@ namespace Code.Gameplay
         public bool SecondaryTextColour = false;
     }
 
-    internal struct BoardState
+    internal class BoardState
     {
         public TileState[] tiles;
         public int BoardWidth, BoardHeight, Score;

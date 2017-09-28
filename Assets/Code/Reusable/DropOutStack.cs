@@ -1,6 +1,9 @@
-﻿namespace Assets.Code.Reusable
+﻿using System;
+using JetBrains.Annotations;
+
+namespace Assets.Code.Reusable
 {
-    class DropOutStack<T>
+    class DropOutStack<T> where T : class
     {
         private T[] items;
         private int top = 0;
@@ -26,7 +29,9 @@
         public T Pop()
         {
             top = (items.Length + top - 1) % items.Length;
-            return items[top];
+            T type = items[top];
+            items[top] = null;
+            return type;
         }
     }
 }
