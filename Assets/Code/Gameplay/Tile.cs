@@ -20,7 +20,15 @@ namespace Code.Gameplay
         public int Value
         {
             private set { this.value = value; }
-            get { return moving && merging ? value * 2 : value; }
+            get
+            {
+                if(moving && merging)
+                {
+                    if(value == -1) return -1;
+                    else return value * 2;
+                }
+                else return value;
+            }
         }
         private int value = -1;
 
@@ -93,7 +101,7 @@ namespace Code.Gameplay
 
         private void OnDrawGizmosSelected()
         {
-            if(moving)
+            if (moving)
                 Debug.DrawLine(start, end, merging ? Color.magenta : Color.green);
         }
 
@@ -128,6 +136,13 @@ namespace Code.Gameplay
                 if (merging)
                 {
                     merging = false;
+                    if(value == -1)
+                    {
+                        background.color = Color.red;
+                        Debug.LogError("-1 Value!!!");
+                        return;
+                    }
+
                     value *= 2;
                     background.color = imgColour;
                     scoreText.color = textColour;
