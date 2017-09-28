@@ -246,10 +246,14 @@ namespace Code.Gameplay
             return true;
         }
 
+        /// <summary>
+        /// Checks the game board for any empty tiles
+        /// </summary>
+        /// <returns>true is there are empty tiles</returns>
         private bool CheckForEmptyTile()
         {
             foreach (Tile tilePosition in tilePositions.Values)
-                if (tilePosition.Value != -1) return true;
+                if (tilePosition.Value == -1) return true;
             return false;
         }
 
@@ -324,7 +328,7 @@ namespace Code.Gameplay
         private void SpawnTile(Tile tile, bool forceLow = false)
         {
             TileStyle style = forceLow ? Styles[0] : highScoreSpawn > Random.Range(0, 1) ? Styles[0] : Styles[1];
-            tile.setTile(style.score, style.Color, style.SecondaryTextColour ? secondaryTextColour : primaryTextColour);
+            tile.setTile(style.score, style.Color, style.SecondaryTextColour ? secondaryTextColour : primaryTextColour, movementSpeed, true);
         }
 
         public void Up()
@@ -530,9 +534,9 @@ namespace Code.Gameplay
             }
 
             Debug.Log(valid ? "valid right move" : "invalid right move");
-            if(!valid)
+            if (!valid)
             {
-                if(isEndOfGame()) GameOver.gameObject.SetActive(true);
+                if (isEndOfGame()) GameOver.gameObject.SetActive(true);
                 return;
             }
 
@@ -594,12 +598,11 @@ namespace Code.Gameplay
                 {
                     TileStyle style = getStyle(tile.Points);
                     tilePositions[new Vector2(tile.gridX, tile.gridY)].setTile(tile.Points, style.Color,
-                        style.SecondaryTextColour ? secondaryTextColour : primaryTextColour);
+                        style.SecondaryTextColour ? secondaryTextColour : primaryTextColour, movementSpeed, false);
                 }
             }
 
-            if(!isEndOfGame())
-                GameOver.gameObject.SetActive(false);
+            GameOver.gameObject.SetActive(isEndOfGame());
         }
 
         private TileStyle getStyle(int i)

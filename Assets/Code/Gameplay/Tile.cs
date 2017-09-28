@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using UnityEngine.Networking;
 using UnityEngine.UI;
 
 namespace Code.Gameplay
@@ -22,9 +23,9 @@ namespace Code.Gameplay
             private set { this.value = value; }
             get
             {
-                if(moving && merging)
+                if (moving && merging)
                 {
-                    if(value == -1) return -1;
+                    if (value == -1) return -1;
                     else return value * 2;
                 }
                 else return value;
@@ -42,6 +43,8 @@ namespace Code.Gameplay
         private bool merging = false;
         private Color imgColour, textColour;
 
+        private bool spawning = false;
+
         private void Start()
         {
             trans = transform;
@@ -51,14 +54,21 @@ namespace Code.Gameplay
         {
             if (moving)
             {
+                if (spawning) FinishSpawning();
+
                 passed += Time.deltaTime;
                 Vector2 loc = Vector2.Lerp(start, end, passed / speed);
-                transform.position = loc;
+                trans.position = loc;
 
-                if (passed >= speed)
-                {
-                    FinishMoving();
-                }
+                if (passed >= speed) FinishMoving();
+            }
+            else if (spawning)
+            {
+                passed += Time.deltaTime;
+                Vector3 size = Vector3.Lerp(Vector3.zero, Vector3.one, passed / speed);
+                trans.localScale = size;
+
+                if (passed >= speed) FinishSpawning();
             }
         }
 
@@ -77,9 +87,10 @@ namespace Code.Gameplay
 
             moving = false;
             merging = false;
+            FinishSpawning();
         }
 
-        public void setTile(int score, Color colour, Color fontColour)
+        public void setTile(int score, Color colour, Color fontColour, float spawnSpeed = 0.2f, bool spawn = true)
         {
             background.color = colour;
             transform.position = new Vector3(transform.position.x, transform.position.y, 0f);
@@ -89,6 +100,13 @@ namespace Code.Gameplay
 
             moving = false;
             merging = false;
+            if (spawn)
+            {
+                spawning = true;
+                passed = 0f;
+                speed = spawnSpeed;
+            }
+            else FinishSpawning();
         }
 
         public void MoveTile(Vector2 gridLocation, Vector2 uiLocation, float speed, Tile hide)
@@ -96,6 +114,7 @@ namespace Code.Gameplay
             GridPosition = gridLocation;
 
             FinishMoving();
+            FinishSpawning();
 
             start = trans.position;
             end = uiLocation;
@@ -116,6 +135,7 @@ namespace Code.Gameplay
             GridPosition = moveGridLocation;
 
             FinishMoving();
+            FinishSpawning();
 
             start = trans.position;
             end = moveUiLocation;
@@ -134,15 +154,16 @@ namespace Code.Gameplay
             if (moving)
             {
                 trans.position = end;
+                passed = 0f;
                 moving = false;
 
-                if (hidden != null) hidden.gameObject.SetActive(false);
+                if (hidden != null) hidden.PreShutDown();
                 hidden = null;
 
                 if (merging)
                 {
                     merging = false;
-                    if(value == -1)
+                    if (value == -1)
                     {
                         background.color = Color.red;
                         Debug.LogError("-1 Value!!!");
@@ -155,6 +176,26 @@ namespace Code.Gameplay
                     scoreText.text = value.ToString();
                 }
             }
+        }
+
+        /// <summary>
+        /// Call to make sure all tiles properly hide themselves
+        /// </summary>
+        private void PreShutDown()
+        {
+            if (hidden != null) hidden.PreShutDown();
+            hidden = null;
+
+            gameObject.SetActive(false);
+        }
+
+        private void FinishSpawning()
+        {
+            if (!spawning) return;
+
+            trans.localScale = Vector3.one;
+            spawning = false;
+            passed = 0f;
         }
 
 #if ENABLE_PLAYMODE_TESTS_RUNNER
