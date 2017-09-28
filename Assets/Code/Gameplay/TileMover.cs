@@ -20,6 +20,8 @@ namespace Code.Gameplay
         [SerializeField]
         private Text scoreText;
         [SerializeField]
+        private Text GameOver;
+        [SerializeField]
         private int historyLength = 3;
         [Header("Tile Colour Settings")]
         [SerializeField]
@@ -83,6 +85,8 @@ namespace Code.Gameplay
                 Tile edge2 = FindEmptyEdgeTile();
                 SpawnTile(edge2, true);
             }
+
+            GameOver.gameObject.SetActive(false);
 
             history = new DropOutStack<BoardState>(historyLength);
             UpdateHistory(); //save initial state
@@ -367,7 +371,11 @@ namespace Code.Gameplay
             }
 
             Debug.Log(valid ? "valid up move" : "invalid up move");
-            if (!valid) return;
+            if (!valid)
+            {
+                if (isEndOfGame()) GameOver.gameObject.SetActive(true);
+                return;
+            }
 
             PlaceNewTile(Direction.Up);
         }
@@ -416,7 +424,11 @@ namespace Code.Gameplay
             }
 
             Debug.Log(valid ? "valid down move" : "invalid down move");
-            if (!valid) return;
+            if (!valid)
+            {
+                if (isEndOfGame()) GameOver.gameObject.SetActive(true);
+                return;
+            }
 
             PlaceNewTile(Direction.Down);
         }
@@ -465,7 +477,11 @@ namespace Code.Gameplay
             }
 
             Debug.Log(valid ? "valid left move" : "invalid left move");
-            if (!valid) return;
+            if (!valid)
+            {
+                if (isEndOfGame()) GameOver.gameObject.SetActive(true);
+                return;
+            }
 
             PlaceNewTile(Direction.Left);
         }
@@ -514,7 +530,11 @@ namespace Code.Gameplay
             }
 
             Debug.Log(valid ? "valid right move" : "invalid right move");
-            if (!valid) return;
+            if(!valid)
+            {
+                if(isEndOfGame()) GameOver.gameObject.SetActive(true);
+                return;
+            }
 
             PlaceNewTile(Direction.Right);
         }
@@ -577,6 +597,9 @@ namespace Code.Gameplay
                         style.SecondaryTextColour ? secondaryTextColour : primaryTextColour);
                 }
             }
+
+            if(!isEndOfGame())
+                GameOver.gameObject.SetActive(false);
         }
 
         private TileStyle getStyle(int i)
