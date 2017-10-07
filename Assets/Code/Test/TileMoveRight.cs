@@ -12,13 +12,13 @@ namespace Code.Test
         {
             TileValue[] positions = new[]
             {
-                new TileValue(2, new Vector2(1, 0)),
-                new TileValue(2, new Vector2(2, 0))
+                new TileValue(2, new BoardPos(1, 0)),
+                new TileValue(2, new BoardPos(2, 0))
             };
 
             TileValue[] outcome = new[]
             {
-                new TileValue(4, new Vector2(2, 0))
+                new TileValue(4, new BoardPos(2, 0))
             };
 
             return RightTests(new BoardSize(3, 3), positions, outcome, true);
@@ -29,13 +29,13 @@ namespace Code.Test
         {
             TileValue[] positions = new[]
             {
-                new TileValue(2, new Vector2(2, 0)),
-                new TileValue(2, new Vector2(3, 0))
+                new TileValue(2, new BoardPos(2, 0)),
+                new TileValue(2, new BoardPos(3, 0))
             };
 
             TileValue[] outcome = new[]
             {
-                new TileValue(4, new Vector2(3, 0))
+                new TileValue(4, new BoardPos(3, 0))
             };
 
             return RightTests(new BoardSize(4, 4), positions, outcome, true);
@@ -46,13 +46,13 @@ namespace Code.Test
         {
             TileValue[] positions = new[]
             {
-                new TileValue(2, new Vector2(1, 0)),
-                new TileValue(2, new Vector2(2, 0))
+                new TileValue(2, new BoardPos(1, 0)),
+                new TileValue(2, new BoardPos(2, 0))
             };
 
             TileValue[] outcome = new[]
             {
-                new TileValue(4, new Vector2(3, 0))
+                new TileValue(4, new BoardPos(3, 0))
             };
 
             return RightTests(new BoardSize(4, 4), positions, outcome, true);
@@ -63,18 +63,18 @@ namespace Code.Test
         {
             TileValue[] positions = new[]
             {
-                new TileValue(2, new Vector2(3, 0)),
-                new TileValue(2, new Vector2(3, 1)),
-                new TileValue(2, new Vector2(3, 2)),
-                new TileValue(2, new Vector2(3, 3)),
+                new TileValue(2, new BoardPos(3, 0)),
+                new TileValue(2, new BoardPos(3, 1)),
+                new TileValue(2, new BoardPos(3, 2)),
+                new TileValue(2, new BoardPos(3, 3)),
             };
 
             TileValue[] outcome = new[]
             {
-                new TileValue(2, new Vector2(3, 0)),
-                new TileValue(2, new Vector2(3, 1)),
-                new TileValue(2, new Vector2(3, 2)),
-                new TileValue(2, new Vector2(3, 3))
+                new TileValue(2, new BoardPos(3, 0)),
+                new TileValue(2, new BoardPos(3, 1)),
+                new TileValue(2, new BoardPos(3, 2)),
+                new TileValue(2, new BoardPos(3, 3))
             };
 
             return RightTests(new BoardSize(4, 4), positions, outcome, false);
@@ -85,14 +85,14 @@ namespace Code.Test
         {
             TileValue[] positions = new[]
             {
-                new TileValue(2, new Vector2(1, 0)),
-                new TileValue(4, new Vector2(2, 0))
+                new TileValue(2, new BoardPos(1, 0)),
+                new TileValue(4, new BoardPos(2, 0))
             };
 
             TileValue[] outcome = new[]
             {
-                new TileValue(2, new Vector2(2, 0)),
-                new TileValue(4, new Vector2(3, 0))
+                new TileValue(2, new BoardPos(2, 0)),
+                new TileValue(4, new BoardPos(3, 0))
             };
 
             return RightTests(new BoardSize(4, 4), positions, outcome, true);
@@ -103,14 +103,14 @@ namespace Code.Test
         {
             TileValue[] positions = new[]
             {
-                new TileValue(2, new Vector2(1, 0)),
-                new TileValue(4, new Vector2(3, 0))
+                new TileValue(2, new BoardPos(1, 0)),
+                new TileValue(4, new BoardPos(3, 0))
             };
 
             TileValue[] outcome = new[]
             {
-                new TileValue(2, new Vector2(2, 0)),
-                new TileValue(4, new Vector2(3, 0))
+                new TileValue(2, new BoardPos(2, 0)),
+                new TileValue(4, new BoardPos(3, 0))
             };
 
             return RightTests(new BoardSize(4, 4), positions, outcome, true);
@@ -121,12 +121,12 @@ namespace Code.Test
         {
             TileValue[] positions = new[]
             {
-                new TileValue(2, new Vector2(3, 0))
+                new TileValue(2, new BoardPos(3, 0))
             };
 
             TileValue[] outcome = new[]
             {
-                new TileValue(2, new Vector2(3, 0))
+                new TileValue(2, new BoardPos(3, 0))
             };
 
             return RightTests(new BoardSize(4, 4), positions, outcome, false);
@@ -137,12 +137,12 @@ namespace Code.Test
         {
             TileValue[] positions = new[]
             {
-                new TileValue(2, new Vector2(2, 0))
+                new TileValue(2, new BoardPos(2, 0))
             };
 
             TileValue[] outcome = new[]
             {
-                new TileValue(2, new Vector2(3, 0))
+                new TileValue(2, new BoardPos(3, 0))
             };
 
             return RightTests(new BoardSize(4, 4), positions, outcome, true);
@@ -153,12 +153,12 @@ namespace Code.Test
         {
             TileValue[] positions = new[]
             {
-                new TileValue(2, new Vector2(1, 0))
+                new TileValue(2, new BoardPos(1, 0))
             };
 
             TileValue[] outcome = new[]
             {
-                new TileValue(2, new Vector2(3, 0))
+                new TileValue(2, new BoardPos(3, 0))
             };
 
             return RightTests(new BoardSize(4, 4), positions, outcome, true);
@@ -169,14 +169,14 @@ namespace Code.Test
         {
             TileValue[] positions = new[]
             {
-                new TileValue(2, new Vector2(2, 0)),
-                new TileValue(4, new Vector2(3, 0)),
+                new TileValue(2, new BoardPos(2, 0)),
+                new TileValue(4, new BoardPos(3, 0)),
             };
 
             TileValue[] outcome = new[]
             {
-                new TileValue(2, new Vector2(2, 0)),
-                new TileValue(4, new Vector2(3, 0)),
+                new TileValue(2, new BoardPos(2, 0)),
+                new TileValue(4, new BoardPos(3, 0)),
             };
 
             return RightTests(new BoardSize(4, 4), positions, outcome, false);

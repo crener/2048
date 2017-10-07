@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using Assets.Code.Reusable;
 using UnityEngine;
+using UnityEngine.Profiling;
 using UnityEngine.UI;
 using Random = UnityEngine.Random;
 
@@ -55,7 +56,7 @@ namespace Code.Gameplay
 
         public Vector2 boardSize { get; set; }
 
-        private Dictionary<Vector2, Tile> tilePositions = new Dictionary<Vector2, Tile>();
+        private Dictionary<BoardPos, Tile> tilePositions = new Dictionary<BoardPos, Tile>();
         private DropOutStack<BoardState> history;
         private int score;
 
@@ -86,7 +87,7 @@ namespace Code.Gameplay
                 SpawnTile(edge2, true);
             }
 
-            GameOver.gameObject.SetActive(false);
+            if (GameOver != null) GameOver.gameObject.SetActive(false);
 
             history = new DropOutStack<BoardState>(historyLength);
             UpdateHistory(); //save initial state
@@ -110,13 +111,13 @@ namespace Code.Gameplay
                     y = (int)Random.Range(0, boardSize.y);
                 else Debug.LogError("Unknown generation state! x = " + x);
 
-                if (!tilePositions.ContainsKey(new Vector2(x, y)))
+                if (!tilePositions.ContainsKey(new BoardPos(x, y)))
                 {
                     Debug.LogWarning("Incorrect tile fetch attempt! x = " + x + ", y = " + y);
                     continue;
                 }
 
-                Tile potentialTile = tilePositions[new Vector2(x, y)];
+                Tile potentialTile = tilePositions[new BoardPos(x, y)];
                 if (potentialTile.Value != -1) continue;
 
                 edgeTile = potentialTile;
@@ -148,13 +149,13 @@ namespace Code.Gameplay
                     else if (edge == Direction.Right) x = (int)boardSize.x - 1;
                 }
 
-                if (!tilePositions.ContainsKey(new Vector2(x, y)))
+                if (!tilePositions.ContainsKey(new BoardPos(x, y)))
                 {
                     Debug.LogWarning("Incorrect tile fetch attempt! x = " + x + ", y = " + y);
                     continue;
                 }
 
-                Tile potentialTile = tilePositions[new Vector2(x, y)];
+                Tile potentialTile = tilePositions[new BoardPos(x, y)];
                 if (potentialTile.Value != -1) continue;
 
                 edgeTile = potentialTile;
@@ -171,13 +172,13 @@ namespace Code.Gameplay
                 int x = (int)Random.Range(0, boardSize.x);
                 int y = (int)Random.Range(0, boardSize.y);
 
-                if (!tilePositions.ContainsKey(new Vector2(x, y)))
+                if (!tilePositions.ContainsKey(new BoardPos(x, y)))
                 {
                     Debug.LogWarning("Incorrect tile fetch attempt! x = " + x + ", y = " + y);
                     continue;
                 }
 
-                Tile potentialTile = tilePositions[new Vector2(x, y)];
+                Tile potentialTile = tilePositions[new BoardPos(x, y)];
                 if (potentialTile.Value != -1) continue;
 
                 edgeTile = potentialTile;
@@ -191,19 +192,19 @@ namespace Code.Gameplay
             if (!CheckForEmptyTile()) return;
 
             bool directionSpawn = CheckForEmptyEdgeTile() && edgeSpawn > Random.Range(0f, 1f);
-
-            Tile change;
-            if (directionSpawn)
-                change = FindEmptyEdgeTile(OppositeSide(previousDirection));
-            else
-                change = FindEmptyTile();
-
-            SpawnTile(change);
+            SpawnTile(directionSpawn ?
+                FindEmptyEdgeTile(OppositeSide(previousDirection)) :
+                FindEmptyTile());
         }
 
         private bool isEndOfGame()
         {
-            if (CheckForEmptyTile()) return false;
+            Profiler.BeginSample("End of Game?");
+            if (CheckForEmptyTile())
+            {
+                Profiler.EndSample();
+                return false;
+            }
 
             //there are no more empty tiles so check for possible moves
             for (int x = 0; x < boardSize.x - 1; x++)
@@ -211,38 +212,57 @@ namespace Code.Gameplay
                 for (int y = 0; y < boardSize.y - 1; y++)
                 {
                     //go though each tile and check if a tile can move
-                    Tile tile = tilePositions[new Vector2(x, y)];
+                    Tile tile = tilePositions[new BoardPos(x, y)];
 
                     //up
                     if (y != 0)
                     {
-                        Tile upTile = tilePositions[new Vector2(x, y - 1)];
-                        if (upTile.Value == tile.Value || upTile.Value == -1) return false;
+                        Tile upTile = tilePositions[new BoardPos(x, y - 1)];
+                        if (upTile.Value == tile.Value || upTile.Value == -1)
+                        {
+                            Profiler.EndSample();
+                            return false;
+                        }
                     }
 
                     //down
                     if (y != (int)boardSize.y - 1)
                     {
-                        Tile downTile = tilePositions[new Vector2(x, y + 1)];
-                        if (downTile.Value == tile.Value || downTile.Value == -1) return false;
+                        Tile downTile = tilePositions[new BoardPos(x, y + 1)];
+                        if (downTile.Value == tile.Value || downTile.Value == -1)
+                        {
+                            Profiler.EndSample();
+                            return false;
+                        }
                     }
 
                     //left
                     if (x != 0)
                     {
-                        Tile leftTile = tilePositions[new Vector2(x - 1, y)];
-                        if (leftTile.Value == tile.Value || leftTile.Value == -1) return false;
+                        Tile leftTile = tilePositions[new BoardPos(x - 1, y)];
+                        if (leftTile.Value == tile.Value || leftTile.Value == -1)
+                        {
+
+                            Profiler.EndSample();
+                            return false;
+                        }
                     }
 
                     //right
                     if (x != (int)boardSize.x - 1)
                     {
-                        Tile rightTile = tilePositions[new Vector2(x + 1, y)];
-                        if (rightTile.Value == tile.Value || rightTile.Value == -1) return false;
+                        Tile rightTile = tilePositions[new BoardPos(x + 1, y)];
+                        if (rightTile.Value == tile.Value || rightTile.Value == -1)
+                        {
+
+                            Profiler.EndSample();
+                            return false;
+                        }
                     }
                 }
             }
 
+            Profiler.EndSample();
             return true;
         }
 
@@ -261,19 +281,19 @@ namespace Code.Gameplay
         {
             //top
             for (int x = 0; x < boardSize.x; x++)
-                if (tilePositions[new Vector2(x, 0)].Value != -1) return true;
+                if (tilePositions[new BoardPos(x, 0)].Value != -1) return true;
 
             //bottom
             for (int x = 0; x < boardSize.x; x++)
-                if (tilePositions[new Vector2(x, boardSize.y - 1)].Value != -1) return true;
+                if (tilePositions[new BoardPos(x, (int)boardSize.y - 1)].Value != -1) return true;
 
             //middle left
             for (int y = 1; y < boardSize.y - 1; y++)
-                if (tilePositions[new Vector2(0, y)].Value != -1) return true;
+                if (tilePositions[new BoardPos(0, y)].Value != -1) return true;
 
             //middle right
             for (int y = 1; y < boardSize.y - 1; y++)
-                if (tilePositions[new Vector2(boardSize.x - 1, y)].Value != -1) return true;
+                if (tilePositions[new BoardPos((int)boardSize.x - 1, y)].Value != -1) return true;
 
             return false;
         }
@@ -282,19 +302,19 @@ namespace Code.Gameplay
         {
             //top
             for (int x = 0; x < boardSize.x; x++)
-                Draw(tilePositions[new Vector2(x, 0)].UiPosition, Color.blue);
+                Draw(tilePositions[new BoardPos(x, 0)].UiPosition, Color.blue);
 
             //bottom
             for (int x = 0; x < boardSize.x; x++)
-                Draw(tilePositions[new Vector2(x, boardSize.y - 1)].UiPosition, Color.blue);
+                Draw(tilePositions[new BoardPos(x, (int)boardSize.y - 1)].UiPosition, Color.blue);
 
             //left middle
             for (int y = 1; y < boardSize.y - 1; y++)
-                Draw(tilePositions[new Vector2(0, y)].UiPosition, Color.red);
+                Draw(tilePositions[new BoardPos(0, y)].UiPosition, Color.red);
 
             //right middle
             for (int y = 1; y < boardSize.y - 1; y++)
-                Draw(tilePositions[new Vector2(boardSize.x - 1, y)].UiPosition, Color.red);
+                Draw(tilePositions[new BoardPos((int)boardSize.x - 1, y)].UiPosition, Color.red);
         }
 
         private void Draw(Vector2 pos, Color col)
@@ -339,7 +359,7 @@ namespace Code.Gameplay
             {
                 for (int y = 1; y < boardSize.y; y++)
                 {
-                    Tile testTile = tilePositions[new Vector2(x, y)], replace = null;
+                    Tile testTile = tilePositions[new BoardPos(x, y)], replace = null;
                     if (testTile.Value == -1) continue;
 
                     bool move = true;
@@ -347,7 +367,7 @@ namespace Code.Gameplay
                     //find the next move location (go down from this tile until an invalid tile is hit)
                     for (int y2 = y - 1; y2 >= 0; y2--)
                     {
-                        Tile compare = tilePositions[new Vector2(x, y2)];
+                        Tile compare = tilePositions[new BoardPos(x, y2)];
 
                         if (compare.Value == -1)
                         {
@@ -377,7 +397,7 @@ namespace Code.Gameplay
             Debug.Log(valid ? "valid up move" : "invalid up move");
             if (!valid)
             {
-                if (isEndOfGame()) GameOver.gameObject.SetActive(true);
+                if (isEndOfGame() && GameOver != null) GameOver.gameObject.SetActive(true);
                 return;
             }
 
@@ -392,7 +412,7 @@ namespace Code.Gameplay
             {
                 for (int y = (int)boardSize.y - 2; y >= 0; y--)
                 {
-                    Tile testTile = tilePositions[new Vector2(x, y)], replace = null;
+                    Tile testTile = tilePositions[new BoardPos(x, y)], replace = null;
                     if (testTile.Value == -1) continue;
 
                     bool move = true;
@@ -400,7 +420,7 @@ namespace Code.Gameplay
                     //find the next move location (go down from this tile until an invalid tile is hit)
                     for (int y2 = y + 1; y2 < boardSize.y; y2++)
                     {
-                        Tile compare = tilePositions[new Vector2(x, y2)];
+                        Tile compare = tilePositions[new BoardPos(x, y2)];
 
                         if (compare.Value == -1)
                         {
@@ -430,7 +450,7 @@ namespace Code.Gameplay
             Debug.Log(valid ? "valid down move" : "invalid down move");
             if (!valid)
             {
-                if (isEndOfGame()) GameOver.gameObject.SetActive(true);
+                if (isEndOfGame() && GameOver != null) GameOver.gameObject.SetActive(true);
                 return;
             }
 
@@ -445,7 +465,7 @@ namespace Code.Gameplay
             {
                 for (int x = 1; x < boardSize.x; x++)
                 {
-                    Tile testTile = tilePositions[new Vector2(x, y)], replace = null;
+                    Tile testTile = tilePositions[new BoardPos(x, y)], replace = null;
                     if (testTile.Value == -1) continue;
 
                     bool move = true;
@@ -453,7 +473,7 @@ namespace Code.Gameplay
                     //find the next move location (go left from this tile until an invalid tile is hit)
                     for (int x2 = x - 1; x2 >= 0; x2--)
                     {
-                        Tile compare = tilePositions[new Vector2(x2, y)];
+                        Tile compare = tilePositions[new BoardPos(x2, y)];
 
                         if (compare.Value == -1)
                         {
@@ -483,7 +503,7 @@ namespace Code.Gameplay
             Debug.Log(valid ? "valid left move" : "invalid left move");
             if (!valid)
             {
-                if (isEndOfGame()) GameOver.gameObject.SetActive(true);
+                if (isEndOfGame() && GameOver != null) GameOver.gameObject.SetActive(true);
                 return;
             }
 
@@ -499,14 +519,14 @@ namespace Code.Gameplay
             {
                 for (int x = (int)boardSize.x - 2; x >= 0; x--)
                 {
-                    Tile testTile = tilePositions[new Vector2(x, y)], replace = null;
+                    Tile testTile = tilePositions[new BoardPos(x, y)], replace = null;
                     if (testTile.Value == -1) continue;
 
                     bool move = true;
 
                     for (int x2 = x + 1; x2 < boardSize.y; x2++)
                     {
-                        Tile compare = tilePositions[new Vector2(x2, y)];
+                        Tile compare = tilePositions[new BoardPos(x2, y)];
 
                         if (compare.Value == -1)
                         {
@@ -536,7 +556,7 @@ namespace Code.Gameplay
             Debug.Log(valid ? "valid right move" : "invalid right move");
             if (!valid)
             {
-                if (isEndOfGame()) GameOver.gameObject.SetActive(true);
+                if (isEndOfGame() && GameOver != null) GameOver.gameObject.SetActive(true);
                 return;
             }
 
@@ -568,13 +588,13 @@ namespace Code.Gameplay
             BoardState state = new BoardState((int)boardSize.x, (int)boardSize.y);
             state.Score = score;
 
-            foreach (KeyValuePair<Vector2, Tile> tile in tilePositions)
+            foreach (KeyValuePair<BoardPos, Tile> tile in tilePositions)
             {
-                int position = ((int)tile.Key.y * (int)boardSize.x) + (int)tile.Key.x;
+                int position = (tile.Key.Y * (int)boardSize.x) + tile.Key.X;
 
                 TileState tileState = new TileState();
-                tileState.gridX = (int)tile.Key.x;
-                tileState.gridY = (int)tile.Key.y;
+                tileState.grid.X = tile.Key.X;
+                tileState.grid.Y = tile.Key.Y;
                 tileState.Points = tile.Value.Value;
 
                 state.tiles[position] = tileState;
@@ -592,17 +612,17 @@ namespace Code.Gameplay
             {
                 if (tile.Points == -1)
                 {
-                    tilePositions[new Vector2(tile.gridX, tile.gridY)].setEmpty(emptyTileColor);
+                    tilePositions[new BoardPos(tile.grid.X, tile.grid.Y)].setEmpty(emptyTileColor);
                 }
                 else
                 {
                     TileStyle style = getStyle(tile.Points);
-                    tilePositions[new Vector2(tile.gridX, tile.gridY)].setTile(tile.Points, style.Color,
+                    tilePositions[new BoardPos(tile.grid.X, tile.grid.Y)].setTile(tile.Points, style.Color,
                         style.SecondaryTextColour ? secondaryTextColour : primaryTextColour, movementSpeed, false);
                 }
             }
 
-            GameOver.gameObject.SetActive(isEndOfGame());
+            if (GameOver != null) GameOver.gameObject.SetActive(isEndOfGame());
         }
 
         private TileStyle getStyle(int i)
@@ -615,7 +635,7 @@ namespace Code.Gameplay
             return unknownTileStyle;
         }
 
-        private void PlaceEmptyTile(Vector2 grid, Vector2 ui)
+        private void PlaceEmptyTile(BoardPos grid, Vector2 ui)
         {
             Tile tile = BoardBuilder.spareTiles.GetObject();
             tile.transform.SetAsFirstSibling();
@@ -634,11 +654,12 @@ namespace Code.Gameplay
         }
 
 #if ENABLE_PLAYMODE_TESTS_RUNNER
-        internal Dictionary<Vector2, Tile> getBoardRepresentation()
+        internal Dictionary<BoardPos, Tile> getBoardRepresentation()
         {
             return tilePositions;
         }
-        internal void setBoardRepresentation(Dictionary<Vector2, Tile> newBoard)
+
+        internal void setBoardRepresentation(Dictionary<BoardPos, Tile> newBoard)
         {
             tilePositions = newBoard;
         }
@@ -680,14 +701,27 @@ namespace Code.Gameplay
         }
     }
 
+    [Serializable]
+    public struct BoardPos
+    {
+        public int X;
+        public int Y;
+
+        public BoardPos(int x, int y)
+        {
+            X = x;
+            Y = y;
+        }
+    }
+
     internal class TileState
     {
-        public int gridX, gridY, Points;
+        public int Points;
+        public BoardPos grid;
 
         public TileState()
         {
-            gridX = -1;
-            gridY = -1;
+            grid = new BoardPos(-1, -1);
             Points = -1;
         }
     }

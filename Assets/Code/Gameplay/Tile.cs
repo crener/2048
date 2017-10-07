@@ -12,7 +12,7 @@ namespace Code.Gameplay
         private Image background;
 
         [HideInInspector]
-        public Vector2 GridPosition = new Vector2(-1, -1);
+        public BoardPos GridPosition = new BoardPos(-1, -1);
         public Vector2 UiPosition
         {
             get { return moving ? end : (Vector2)transform.position; }
@@ -79,7 +79,7 @@ namespace Code.Gameplay
             value = -1;
         }
 
-        public void setEmpty(Vector2 gridPos, Vector2 worldPos, Color colour)
+        public void setEmpty(BoardPos gridPos, Vector2 worldPos, Color colour)
         {
             setEmpty(colour);
             GridPosition = gridPos;
@@ -109,7 +109,7 @@ namespace Code.Gameplay
             else FinishSpawning();
         }
 
-        public void MoveTile(Vector2 gridLocation, Vector2 uiLocation, float speed, Tile hide)
+        public void MoveTile(BoardPos gridLocation, Vector2 uiLocation, float speed, Tile hide)
         {
             GridPosition = gridLocation;
 
@@ -130,7 +130,7 @@ namespace Code.Gameplay
                 Debug.DrawLine(start, end, merging ? Color.magenta : Color.green);
         }
 
-        internal void MergeTile(Vector2 moveGridLocation, Vector2 moveUiLocation, float movementSpeed, Tile replace, Color styleColor, Color textColor)
+        internal void MergeTile(BoardPos moveGridLocation, Vector2 moveUiLocation, float movementSpeed, Tile replace, Color styleColor, Color textColor)
         {
             GridPosition = moveGridLocation;
 

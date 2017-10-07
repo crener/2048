@@ -17,14 +17,14 @@ namespace Code.Test
             tile.DirectionChance = 1f;
             yield return null;
 
-            Dictionary<Vector2, Tile> board = tile.getBoardRepresentation();
-            board[new Vector2(0, 0)].setTile(2, Color.blue, Color.magenta);
-            board[new Vector2(0, 1)].setTile(2, Color.blue, Color.magenta);
+            Dictionary<BoardPos, Tile> board = tile.getBoardRepresentation();
+            board[new BoardPos(0, 0)].setTile(2, Color.blue, Color.magenta);
+            board[new BoardPos(0, 1)].setTile(2, Color.blue, Color.magenta);
 
             yield return null;
 
             List<Vector2> positions = new List<Vector2>(4 * 4 + 1);
-            foreach (KeyValuePair<Vector2, Tile> pair in board)
+            foreach (KeyValuePair<BoardPos, Tile> pair in board)
                 positions.Add(pair.Value.UiPosition);
 
             yield return null;
@@ -41,7 +41,7 @@ namespace Code.Test
             foreach (Vector2 position in positions)
             {
                 bool match = false;
-                foreach (KeyValuePair<Vector2, Tile> pos in board)
+                foreach (KeyValuePair<BoardPos, Tile> pos in board)
                     if (pos.Value.UiPosition == position)
                     {
                         match = true;

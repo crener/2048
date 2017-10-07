@@ -28,9 +28,9 @@ namespace Code.Gameplay
         public struct TileValue
         {
             public int Val;
-            public Vector2 Grid;
+            public BoardPos Grid;
 
-            public TileValue(int val, Vector2 grid)
+            public TileValue(int val, BoardPos grid)
             {
                 Val = val;
                 Grid = grid;
@@ -64,7 +64,7 @@ namespace Code.Gameplay
             yield return null;
             yield return null;
 
-            Dictionary<Vector2, Tile> board = mover.getBoardRepresentation();
+            Dictionary<BoardPos, Tile> board = mover.getBoardRepresentation();
             foreach (TileValue position in positions)
                 board[position.Grid].setTile(position.Val, Color.blue, Color.black);
 

@@ -72,7 +72,7 @@ public class BoardBuilder : MonoBehaviour
                 };
 
                 Tile tile = spareTiles.GetObject();
-                tile.GridPosition = new Vector2(x, y);
+                tile.GridPosition = new BoardPos(x, y);
 
                 GameObject newSquare = tile.gameObject;
                 newSquare.name = x + " " + y;
