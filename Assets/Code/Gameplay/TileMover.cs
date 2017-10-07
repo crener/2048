@@ -197,7 +197,7 @@ namespace Code.Gameplay
                 FindEmptyTile());
         }
 
-        private bool isEndOfGame()
+        public bool isEndOfGame()
         {
             Profiler.BeginSample("End of Game?");
             if (CheckForEmptyTile())
@@ -207,9 +207,9 @@ namespace Code.Gameplay
             }
 
             //there are no more empty tiles so check for possible moves
-            for (int x = 0; x < boardSize.x - 1; x++)
+            for (int x = 0; x < boardSize.x; x++)
             {
-                for (int y = 0; y < boardSize.y - 1; y++)
+                for (int y = 0; y < boardSize.y; y++)
                 {
                     //go though each tile and check if a tile can move
                     Tile tile = tilePositions[new BoardPos(x, y)];

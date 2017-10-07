@@ -51,5 +51,28 @@ namespace Code.Test
                 Assert.IsTrue(match, "tile positions have shifted for a tile, X=" + position.x + " Y=" + position.y);
             }
         }
+
+        [UnityTest]
+        public IEnumerator PrematureGameover()
+        {
+            TileMover tile = SetupBasicField(new BoardSize(3, 3));
+            tile.DirectionChance = 1f;
+            yield return null;
+
+            Dictionary<BoardPos, Tile> board = tile.getBoardRepresentation();
+            board[new BoardPos(0, 0)].setTile(4, Color.blue, Color.magenta);
+            board[new BoardPos(0, 1)].setTile(32, Color.blue, Color.magenta);
+            board[new BoardPos(0, 2)].setTile(2, Color.yellow, Color.magenta); //match
+            board[new BoardPos(1, 0)].setTile(2, Color.blue, Color.magenta);
+            board[new BoardPos(1, 1)].setTile(16, Color.blue, Color.magenta);
+            board[new BoardPos(1, 2)].setTile(2, Color.yellow, Color.magenta); //match
+            board[new BoardPos(2, 0)].setTile(16, Color.blue, Color.magenta);
+            board[new BoardPos(2, 1)].setTile(4, Color.blue, Color.magenta);
+            board[new BoardPos(2, 2)].setTile(8, Color.blue, Color.magenta);
+
+            yield return null;
+
+            Assert.IsFalse(tile.isEndOfGame());
+        }
     }
 }
