@@ -54,7 +54,7 @@ namespace Code.Gameplay
             }
         }
 
-        public Vector2 boardSize { get; set; }
+        public BoardPos boardSize { get; set; }
 
         private Dictionary<BoardPos, Tile> tilePositions = new Dictionary<BoardPos, Tile>();
         private DropOutStack<BoardState> history;
@@ -98,17 +98,17 @@ namespace Code.Gameplay
             Tile edgeTile = null;
             do
             {
-                int x = (int)Random.Range(0, boardSize.x);
+                int x = Random.Range(0, boardSize.X);
                 int y = 0;
 
-                if (x > 0 && x < boardSize.x)
+                if (x > 0 && x < boardSize.X)
                 {
                     //X is in the middle of the grid to Y is limited to top or bottom
                     bool top = Random.Range(0, 1) == 1;
-                    y = top ? (int)boardSize.x : 0;
+                    y = top ? boardSize.X : 0;
                 }
-                else if (x == 0 || x == boardSize.x)
-                    y = (int)Random.Range(0, boardSize.y);
+                else if (x == 0 || x == boardSize.X)
+                    y = Random.Range(0, boardSize.Y);
                 else Debug.LogError("Unknown generation state! x = " + x);
 
                 if (!tilePositions.ContainsKey(new BoardPos(x, y)))
@@ -128,49 +128,65 @@ namespace Code.Gameplay
 
         private Tile FindEmptyEdgeTile(Direction edge)
         {
-            Tile edgeTile = null;
-            do
+            Profiler.BeginSample("Find Edge Tile");
+
+            List<Tile> validPositions = new List<Tile>();
+            int returnTile = 0;
+
+            if (edge == Direction.Up || edge == Direction.Down)
+            {
+                int y = -1;
+                Profiler.BeginSample("X Search");
+
+                if (edge == Direction.Up) y = 0;
+                else if (edge == Direction.Down) y = boardSize.Y - 1;
+
+                //figure out which tiles are free
+                BoardPos pos = new BoardPos(-1, y);
+                for (int i = 0; i < boardSize.X; i++)
+                {
+                    pos.X = i;
+                    if(tilePositions[pos].Value == -1)
+                        validPositions.Add(tilePositions[pos]);
+                }
+
+                returnTile = Random.Range(0, validPositions.Count - 1);
+                Profiler.EndSample();
+            }
+
+            if (edge == Direction.Left || edge == Direction.Right)
             {
                 int x = -1;
-                int y = -1;
+                Profiler.BeginSample("Y Search");
 
-                if (edge == Direction.Up || edge == Direction.Down)
+                if (edge == Direction.Left) x = 0;
+                else if (edge == Direction.Right) x = boardSize.X - 1;
+
+                //figure out which tiles are free
+                BoardPos pos = new BoardPos(x, -1);
+                for (int i = 0; i < boardSize.Y; i++)
                 {
-                    x = (int)Random.Range(0, boardSize.x - 1);
-
-                    if (edge == Direction.Up) y = 0;
-                    else if (edge == Direction.Down) y = (int)boardSize.y - 1;
-                }
-                else if (edge == Direction.Left || edge == Direction.Right)
-                {
-                    y = (int)Random.Range(0, boardSize.y - 1);
-
-                    if (edge == Direction.Left) x = 0;
-                    else if (edge == Direction.Right) x = (int)boardSize.x - 1;
+                    pos.Y = i;
+                    if (tilePositions[pos].Value == -1)
+                        validPositions.Add(tilePositions[pos]);
                 }
 
-                if (!tilePositions.ContainsKey(new BoardPos(x, y)))
-                {
-                    Debug.LogWarning("Incorrect tile fetch attempt! x = " + x + ", y = " + y);
-                    continue;
-                }
+                returnTile = Random.Range(0, validPositions.Count - 1);
+                Profiler.EndSample();
+            }
 
-                Tile potentialTile = tilePositions[new BoardPos(x, y)];
-                if (potentialTile.Value != -1) continue;
-
-                edgeTile = potentialTile;
-            } while (edgeTile == null);
-
-            return edgeTile;
+            Profiler.EndSample();
+            return validPositions[returnTile];
         }
 
         private Tile FindEmptyTile()
         {
+            Profiler.BeginSample("Find Any Tile");
             Tile edgeTile = null;
             do
             {
-                int x = (int)Random.Range(0, boardSize.x);
-                int y = (int)Random.Range(0, boardSize.y);
+                int x = Random.Range(0, boardSize.X);
+                int y = Random.Range(0, boardSize.Y);
 
                 if (!tilePositions.ContainsKey(new BoardPos(x, y)))
                 {
@@ -184,22 +200,29 @@ namespace Code.Gameplay
                 edgeTile = potentialTile;
             } while (edgeTile == null);
 
+            Profiler.EndSample();
             return edgeTile;
         }
 
         private void PlaceNewTile(Direction previousDirection)
         {
-            if (!CheckForEmptyTile()) return;
+            Profiler.BeginSample("Place Tile");
+            if (!CheckForEmptyTile())
+            {
+                Profiler.EndSample();
+                return;
+            }
 
             bool directionSpawn = CheckForEmptyEdgeTile() && edgeSpawn > Random.Range(0f, 1f);
             SpawnTile(directionSpawn ?
                 FindEmptyEdgeTile(OppositeSide(previousDirection)) :
                 FindEmptyTile());
+            Profiler.EndSample();
         }
 
         public bool isEndOfGame()
         {
-            Profiler.BeginSample("End of Game?");
+            Profiler.BeginSample("isEndOfGame");
             if (CheckForEmptyTile())
             {
                 Profiler.EndSample();
@@ -207,9 +230,9 @@ namespace Code.Gameplay
             }
 
             //there are no more empty tiles so check for possible moves
-            for (int x = 0; x < boardSize.x; x++)
+            for (int x = 0; x < boardSize.X; x++)
             {
-                for (int y = 0; y < boardSize.y; y++)
+                for (int y = 0; y < boardSize.Y; y++)
                 {
                     //go though each tile and check if a tile can move
                     Tile tile = tilePositions[new BoardPos(x, y)];
@@ -226,7 +249,7 @@ namespace Code.Gameplay
                     }
 
                     //down
-                    if (y != (int)boardSize.y - 1)
+                    if (y != boardSize.Y - 1)
                     {
                         Tile downTile = tilePositions[new BoardPos(x, y + 1)];
                         if (downTile.Value == tile.Value || downTile.Value == -1)
@@ -249,7 +272,7 @@ namespace Code.Gameplay
                     }
 
                     //right
-                    if (x != (int)boardSize.x - 1)
+                    if (x != boardSize.X - 1)
                     {
                         Tile rightTile = tilePositions[new BoardPos(x + 1, y)];
                         if (rightTile.Value == tile.Value || rightTile.Value == -1)
@@ -280,20 +303,20 @@ namespace Code.Gameplay
         private bool CheckForEmptyEdgeTile()
         {
             //top
-            for (int x = 0; x < boardSize.x; x++)
+            for (int x = 0; x < boardSize.X; x++)
                 if (tilePositions[new BoardPos(x, 0)].Value != -1) return true;
 
             //bottom
-            for (int x = 0; x < boardSize.x; x++)
-                if (tilePositions[new BoardPos(x, (int)boardSize.y - 1)].Value != -1) return true;
+            for (int x = 0; x < boardSize.X; x++)
+                if (tilePositions[new BoardPos(x, boardSize.Y - 1)].Value != -1) return true;
 
             //middle left
-            for (int y = 1; y < boardSize.y - 1; y++)
+            for (int y = 1; y < boardSize.Y - 1; y++)
                 if (tilePositions[new BoardPos(0, y)].Value != -1) return true;
 
             //middle right
-            for (int y = 1; y < boardSize.y - 1; y++)
-                if (tilePositions[new BoardPos((int)boardSize.x - 1, y)].Value != -1) return true;
+            for (int y = 1; y < boardSize.Y - 1; y++)
+                if (tilePositions[new BoardPos(boardSize.X - 1, y)].Value != -1) return true;
 
             return false;
         }
@@ -301,20 +324,20 @@ namespace Code.Gameplay
         private void OnDrawGizmosSelected()
         {
             //top
-            for (int x = 0; x < boardSize.x; x++)
+            for (int x = 0; x < boardSize.X; x++)
                 Draw(tilePositions[new BoardPos(x, 0)].UiPosition, Color.blue);
 
             //bottom
-            for (int x = 0; x < boardSize.x; x++)
-                Draw(tilePositions[new BoardPos(x, (int)boardSize.y - 1)].UiPosition, Color.blue);
+            for (int x = 0; x < boardSize.X; x++)
+                Draw(tilePositions[new BoardPos(x, boardSize.Y - 1)].UiPosition, Color.blue);
 
             //left middle
-            for (int y = 1; y < boardSize.y - 1; y++)
+            for (int y = 1; y < boardSize.Y - 1; y++)
                 Draw(tilePositions[new BoardPos(0, y)].UiPosition, Color.red);
 
             //right middle
-            for (int y = 1; y < boardSize.y - 1; y++)
-                Draw(tilePositions[new BoardPos((int)boardSize.x - 1, y)].UiPosition, Color.red);
+            for (int y = 1; y < boardSize.Y - 1; y++)
+                Draw(tilePositions[new BoardPos(boardSize.X - 1, y)].UiPosition, Color.red);
         }
 
         private void Draw(Vector2 pos, Color col)
@@ -353,16 +376,22 @@ namespace Code.Gameplay
 
         public void Up()
         {
-            bool valid = false;
-
-            for (int x = 0; x < boardSize.x; x++)
+            if (isEndOfGame() && GameOver != null)
             {
-                for (int y = 1; y < boardSize.y; y++)
-                {
-                    Tile testTile = tilePositions[new BoardPos(x, y)], replace = null;
-                    if (testTile.Value == -1) continue;
+                GameOver.gameObject.SetActive(true);
+                return;
+            }
 
-                    bool move = true;
+            bool valid = false;
+            for (int x = 0; x < boardSize.X; x++)
+            {
+                for (int y = 1; y < boardSize.Y; y++)
+                {
+                    int value = tilePositions[new BoardPos(x, y)].Value;
+                    if (value == -1) continue;
+
+                    Tile replace = null;
+                    bool move = true, updatable = false;
 
                     //find the next move location (go down from this tile until an invalid tile is hit)
                     for (int y2 = y - 1; y2 >= 0; y2--)
@@ -374,12 +403,14 @@ namespace Code.Gameplay
                             //move to empty field
                             replace = compare;
                             move = true;
+                            updatable = true;
                         }
-                        else if (compare.Value == testTile.Value)
+                        else if (compare.Value == value)
                         {
                             //move to merge with another tile
                             replace = compare;
                             move = false;
+                            updatable = true;
                             break;
                         }
                         else
@@ -387,38 +418,39 @@ namespace Code.Gameplay
                             break;
                     }
 
-                    if (replace == null) continue;
+                    if (!updatable) continue;
                     if (valid == false) UpdateHistory(); //only updates history once you know changes will happen
-                    MoveTile(testTile, replace, move);
+                    MoveTile(tilePositions[new BoardPos(x, y)], replace, move);
                     valid = true;
                 }
             }
 
             Debug.Log(valid ? "valid up move" : "invalid up move");
-            if (!valid)
-            {
-                if (isEndOfGame() && GameOver != null) GameOver.gameObject.SetActive(true);
-                return;
-            }
-
             PlaceNewTile(Direction.Up);
         }
 
         public void Down()
         {
+            if (isEndOfGame() && GameOver != null)
+            {
+                GameOver.gameObject.SetActive(true);
+                return;
+            }
+
             bool valid = false;
 
-            for (int x = 0; x < boardSize.x; x++)
+            for (int x = 0; x < boardSize.X; x++)
             {
-                for (int y = (int)boardSize.y - 2; y >= 0; y--)
+                for (int y = boardSize.Y - 2; y >= 0; y--)
                 {
-                    Tile testTile = tilePositions[new BoardPos(x, y)], replace = null;
-                    if (testTile.Value == -1) continue;
+                    int value = tilePositions[new BoardPos(x, y)].Value;
+                    if (value == -1) continue;
 
-                    bool move = true;
+                    Tile replace = null;
+                    bool move = true, updatable = false;
 
                     //find the next move location (go down from this tile until an invalid tile is hit)
-                    for (int y2 = y + 1; y2 < boardSize.y; y2++)
+                    for (int y2 = y + 1; y2 < boardSize.Y; y2++)
                     {
                         Tile compare = tilePositions[new BoardPos(x, y2)];
 
@@ -427,12 +459,14 @@ namespace Code.Gameplay
                             //move to empty field
                             replace = compare;
                             move = true;
+                            updatable = true;
                         }
-                        else if (compare.Value == testTile.Value)
+                        else if (compare.Value == value)
                         {
                             //move to merge with another tile
                             replace = compare;
                             move = false;
+                            updatable = true;
                             break;
                         }
                         else
@@ -440,35 +474,36 @@ namespace Code.Gameplay
                             break;
                     }
 
-                    if (replace == null) continue;
+                    if (!updatable) continue;
                     if (valid == false) UpdateHistory(); //only updates history once you know changes will happen
-                    MoveTile(testTile, replace, move);
+                    MoveTile(tilePositions[new BoardPos(x, y)], replace, move);
                     valid = true;
                 }
             }
 
             Debug.Log(valid ? "valid down move" : "invalid down move");
-            if (!valid)
-            {
-                if (isEndOfGame() && GameOver != null) GameOver.gameObject.SetActive(true);
-                return;
-            }
-
             PlaceNewTile(Direction.Down);
         }
 
         public void Left()
         {
+            if (isEndOfGame() && GameOver != null)
+            {
+                GameOver.gameObject.SetActive(true);
+                return;
+            }
+
             bool valid = false;
 
-            for (int y = 0; y < boardSize.y; y++)
+            for (int y = 0; y < boardSize.Y; y++)
             {
-                for (int x = 1; x < boardSize.x; x++)
+                for (int x = 1; x < boardSize.X; x++)
                 {
-                    Tile testTile = tilePositions[new BoardPos(x, y)], replace = null;
-                    if (testTile.Value == -1) continue;
+                    int value = tilePositions[new BoardPos(x, y)].Value;
+                    if (value == -1) continue;
 
-                    bool move = true;
+                    Tile replace = null;
+                    bool move = true, updatable = false;
 
                     //find the next move location (go left from this tile until an invalid tile is hit)
                     for (int x2 = x - 1; x2 >= 0; x2--)
@@ -480,12 +515,14 @@ namespace Code.Gameplay
                             //move to empty field
                             replace = compare;
                             move = true;
+                            updatable = true;
                         }
-                        else if (compare.Value == testTile.Value)
+                        else if (compare.Value == value)
                         {
                             //move to merge with another tile
                             replace = compare;
                             move = false;
+                            updatable = true;
                             break;
                         }
                         else
@@ -493,38 +530,39 @@ namespace Code.Gameplay
                             break;
                     }
 
-                    if (replace == null) continue;
+                    if (!updatable) continue;
                     if (valid == false) UpdateHistory(); //only updates history once you know changes will happen
-                    MoveTile(testTile, replace, move);
+                    MoveTile(tilePositions[new BoardPos(x, y)], replace, move);
                     valid = true;
                 }
             }
 
             Debug.Log(valid ? "valid left move" : "invalid left move");
-            if (!valid)
-            {
-                if (isEndOfGame() && GameOver != null) GameOver.gameObject.SetActive(true);
-                return;
-            }
-
             PlaceNewTile(Direction.Left);
         }
 
         public void Right()
         {
+            if (isEndOfGame() && GameOver != null)
+            {
+                GameOver.gameObject.SetActive(true);
+                return;
+            }
+
             bool valid = false;
 
             //ensure that this is a valid move
-            for (int y = 0; y < boardSize.y; y++)
+            for (int y = 0; y < boardSize.Y; y++)
             {
-                for (int x = (int)boardSize.x - 2; x >= 0; x--)
+                for (int x = boardSize.X - 2; x >= 0; x--)
                 {
-                    Tile testTile = tilePositions[new BoardPos(x, y)], replace = null;
-                    if (testTile.Value == -1) continue;
+                    int value = tilePositions[new BoardPos(x, y)].Value;
+                    if (value == -1) continue;
 
-                    bool move = true;
+                    Tile replace = null;
+                    bool move = true, updatable = false;
 
-                    for (int x2 = x + 1; x2 < boardSize.y; x2++)
+                    for (int x2 = x + 1; x2 < boardSize.Y; x2++)
                     {
                         Tile compare = tilePositions[new BoardPos(x2, y)];
 
@@ -533,12 +571,14 @@ namespace Code.Gameplay
                             //move to empty field
                             replace = compare;
                             move = true;
+                            updatable = true;
                         }
-                        else if (compare.Value == testTile.Value)
+                        else if (compare.Value == value)
                         {
                             //move to merge with another tile
                             replace = compare;
                             move = false;
+                            updatable = true;
                             break;
                         }
                         else
@@ -546,25 +586,21 @@ namespace Code.Gameplay
                             break;
                     }
 
-                    if (replace == null) continue;
+                    if (!updatable) continue;
                     if (valid == false) UpdateHistory(); //only updates history once you know changes will happen
-                    MoveTile(testTile, replace, move);
+                    MoveTile(tilePositions[new BoardPos(x, y)], replace, move);
                     valid = true;
                 }
             }
 
             Debug.Log(valid ? "valid right move" : "invalid right move");
-            if (!valid)
-            {
-                if (isEndOfGame() && GameOver != null) GameOver.gameObject.SetActive(true);
-                return;
-            }
-
             PlaceNewTile(Direction.Right);
         }
 
         private void MoveTile(Tile mover, Tile replace, bool moveNotMerge)
         {
+            Profiler.BeginSample("Move Tile");
+
             //update internal board position information
             tilePositions.Remove(mover.GridPosition);
             tilePositions.Remove(replace.GridPosition);
@@ -581,16 +617,17 @@ namespace Code.Gameplay
                 mover.MergeTile(replace.GridPosition, replace.UiPosition, movementSpeed, replace,
                     style.Color, style.SecondaryTextColour ? secondaryTextColour : primaryTextColour);
             }
+            Profiler.EndSample();
         }
 
         private void UpdateHistory()
         {
-            BoardState state = new BoardState((int)boardSize.x, (int)boardSize.y);
+            BoardState state = new BoardState(boardSize.X, boardSize.Y);
             state.Score = score;
 
             foreach (KeyValuePair<BoardPos, Tile> tile in tilePositions)
             {
-                int position = (tile.Key.Y * (int)boardSize.x) + tile.Key.X;
+                int position = (tile.Key.Y * boardSize.X) + tile.Key.X;
 
                 TileState tileState = new TileState();
                 tileState.grid.X = tile.Key.X;

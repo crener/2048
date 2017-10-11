@@ -42,7 +42,7 @@ public class BoardBuilder : MonoBehaviour
         {
             //create a new game board
             BuildBoard(option.X, option.Y);
-            mover.boardSize = new Vector2(option.X, option.Y);
+            mover.boardSize = new BoardPos(option.X, option.Y);
         }
 
         Destroy(opt);

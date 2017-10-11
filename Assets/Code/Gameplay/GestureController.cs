@@ -2,9 +2,11 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
+using UnityEngine.Profiling;
 using UnityEngine.Serialization;
 
-namespace Code.Gameplay {
+namespace Code.Gameplay
+{
     public class GestureController : MonoBehaviour
     {
         [SerializeField]
@@ -69,18 +71,18 @@ namespace Code.Gameplay {
 
         void Update()
         {
-            if(Input.touchCount > 0)
+            if (Input.touchCount > 0)
             {
-                foreach(Touch touch in Input.touches)
+                foreach (Touch touch in Input.touches)
                 {
-                    if(touch.phase == TouchPhase.Began)
+                    if (touch.phase == TouchPhase.Began)
                     {
                         startPos.Add(touch.fingerId, touch.position);
                         continue;
                     }
-                    else if(touch.phase == TouchPhase.Ended)
+                    else if (touch.phase == TouchPhase.Ended)
                     {
-                        if(Vector3.Distance(touch.position, startPos[touch.fingerId]) <= minMoveDist)
+                        if (Vector3.Distance(touch.position, startPos[touch.fingerId]) <= minMoveDist)
                         {
                             //didn't move far enough, so ignore it and remove the point
 #if UNITY_EDITOR
@@ -99,7 +101,7 @@ namespace Code.Gameplay {
                         startPos.Remove(touch.fingerId);
                         continue;
                     }
-                    else if(touch.phase == TouchPhase.Canceled)
+                    else if (touch.phase == TouchPhase.Canceled)
                     {
                         startPos.Remove(touch.fingerId);
                         continue;
@@ -107,13 +109,13 @@ namespace Code.Gameplay {
                 }
             }
             //check the mouse
-            else if(Input.GetMouseButtonDown(0))
+            else if (Input.GetMouseButtonDown(0))
             {
                 mousePos = Input.mousePosition;
             }
-            else if(Input.GetMouseButtonUp(0))
+            else if (Input.GetMouseButtonUp(0))
             {
-                if(Vector3.Distance(mousePos, Input.mousePosition) <= minMoveDist)
+                if (Vector3.Distance(mousePos, Input.mousePosition) <= minMoveDist)
                 {
                     //didn't move far enough, so ignore it and remove the point
 #if UNITY_EDITOR
@@ -133,11 +135,11 @@ namespace Code.Gameplay {
                 bool up = Input.GetButtonDown("up");
                 bool right = Input.GetButtonDown("right");
 
-                if(left && !keyboardDown) m_Left.Invoke();
-                else if(down && !keyboardDown) m_Down.Invoke();
-                else if(up && !keyboardDown) m_Up.Invoke();
-                else if(right && !keyboardDown) m_Right.Invoke();
-                else if(keyboardDown) keyboardDown = false;
+                if(left && !keyboardDown) MoveLeft();
+                else if (down && !keyboardDown) MoveDown();
+                else if (up && !keyboardDown) MoveUp();
+                else if(right && !keyboardDown) MoveRight();
+                else if (keyboardDown) keyboardDown = false;
             }
         }
 
@@ -151,42 +153,61 @@ namespace Code.Gameplay {
         {
             Vector2 greater = new Vector2(Mathf.Abs(NormalizedDelta.x), Mathf.Abs(NormalizedDelta.y));
 
-            if(greater.x > greater.y)
+            if (greater.x > greater.y)
             {
-                //work out if left or right is more promenant
-                if(NormalizedDelta.x > 0)
-                {
-#if UNITY_EDITOR
-                    if(debugLogging) Debug.Log("right");
-#endif
-                    m_Right.Invoke();
-                }
-                else
-                {
-#if UNITY_EDITOR
-                    if(debugLogging) Debug.Log("left");
-#endif
-                    m_Left.Invoke();
-                }
+                //work out if left or right is more prominent
+                if (NormalizedDelta.x > 0) MoveRight();
+                else MoveLeft();
             }
-            else if(greater.x < greater.y)
+            else if (greater.x < greater.y)
             {
-                //work out if up or down is more promenant
-                if(NormalizedDelta.y > 0)
-                {
-#if UNITY_EDITOR
-                    if(debugLogging) Debug.Log("up");
-#endif
-                    m_Up.Invoke();
-                }
-                else
-                {
-#if UNITY_EDITOR
-                    if(debugLogging) Debug.Log("down");
-#endif
-                    m_Down.Invoke();
-                }
+                //work out if up or down is more prominent
+                if (NormalizedDelta.y > 0) MoveUp();
+                else MoveDown();
             }
+        }
+
+        private void MoveRight()
+        {
+#if UNITY_EDITOR
+            if (debugLogging) Debug.Log("right");
+#endif
+            Profiler.BeginSample("RightInvoke");
+            m_Right.Invoke();
+            Profiler.EndSample();
+        }
+
+        private void MoveLeft()
+        {
+#if UNITY_EDITOR
+            if (debugLogging) Debug.Log("left");
+#endif
+
+            Profiler.BeginSample("LeftInvoke");
+            m_Left.Invoke();
+            Profiler.EndSample();
+        }
+
+        private void MoveUp()
+        {
+#if UNITY_EDITOR
+            if (debugLogging) Debug.Log("up");
+#endif
+
+            Profiler.BeginSample("UpInvoke");
+            m_Up.Invoke();
+            Profiler.EndSample();
+        }
+
+        private void MoveDown()
+        {
+#if UNITY_EDITOR
+            if (debugLogging) Debug.Log("down");
+#endif
+            
+            Profiler.BeginSample("DownInvoke");
+            m_Down.Invoke();
+            Profiler.EndSample();
         }
     }
 }

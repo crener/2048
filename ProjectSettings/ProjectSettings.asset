@@ -6,7 +6,7 @@ PlayerSettings:
   serializedVersion: 12
   productGUID: 62621e542a603384486982fba13337c6
   AndroidProfiler: 0
-  defaultScreenOrientation: 4
+  defaultScreenOrientation: 0
   targetDevice: 2
   useOnDemandResources: 0
   accelerometerFrequency: 60
@@ -50,7 +50,7 @@ PlayerSettings:
   m_ActiveColorSpace: 0
   m_MTRendering: 1
   m_MobileMTRendering: 0
-  m_StackTraceTypes: 010000000100000001000000010000000100000001000000
+  m_StackTraceTypes: 000000000000000000000000000000000000000001000000
   iosShowActivityIndicatorOnLoading: -1
   androidShowActivityIndicatorOnLoading: -1
   tizenShowActivityIndicatorOnLoading: -1
@@ -141,7 +141,7 @@ PlayerSettings:
   targetPixelDensity: 0
   resolutionScalingMode: 0
   applicationIdentifier:
-    Android: com.UnityTestRunner.UnityTestRunner
+    Android: com.Project.2048
   buildNumber: {}
   AndroidBundleVersionCode: 1
   AndroidMinSdkVersion: 16
@@ -149,7 +149,7 @@ PlayerSettings:
   AndroidPreferredInstallLocation: 1
   aotOptions: 
   stripEngineCode: 1
-  iPhoneStrippingLevel: 0
+  iPhoneStrippingLevel: 1
   iPhoneScriptCallOptimization: 0
   ForceInternetPermission: 0
   ForceSDCardPermission: 0
@@ -159,7 +159,7 @@ PlayerSettings:
   StripUnusedMeshComponents: 0
   VertexChannelCompressionMask:
     serializedVersion: 2
-    m_Bits: 238
+    m_Bits: 4294967295
   iPhoneSdkVersion: 988
   iOSTargetOSVersionString: 
   tvOSSdkVersion: 0
@@ -214,7 +214,7 @@ PlayerSettings:
   iOSManualSigningProvisioningProfileID: 
   tvOSManualSigningProvisioningProfileID: 
   appleEnableAutomaticSigning: 0
-  AndroidTargetDevice: 0
+  AndroidTargetDevice: 3
   AndroidSplashScreenScale: 0
   androidSplashScreen: {fileID: 0}
   AndroidKeystoreName: 
