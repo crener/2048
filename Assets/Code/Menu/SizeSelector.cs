@@ -24,10 +24,10 @@ namespace Code.Menu
 
             for(int i = 0; i < boards.Count; i++)
             {
-                GameSize board = boards[i];
-                if(board.first)
+                if(boards[i].first)
                 {
                     boardPos = i;
+                    ShowNextBoard(boards[boardPos]);
                     return;
                 }
             }
