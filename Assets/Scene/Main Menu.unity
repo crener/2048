@@ -412,7 +412,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0.23468687, y: 1}
-  m_AnchoredPosition: {x: 0.044998, y: 0}
+  m_AnchoredPosition: {x: 0.04498291, y: 0}
   m_SizeDelta: {x: -0.089996, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &660923156
@@ -534,7 +534,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.7686263, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: -0.000015258789, y: 0}
+  m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &957980845
@@ -671,27 +671,27 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   boards:
-  - SourceImage: {fileID: 0}
+  - SourceImage: {fileID: 21300000, guid: 3beb0a85027b4f4438db3cae473a304c, type: 3}
     Name: Small
     X: 3
     Y: 3
     first: 0
-  - SourceImage: {fileID: 0}
+  - SourceImage: {fileID: 21300000, guid: f06ef7a564626fa46a0ff5c5bdd66e96, type: 3}
     Name: Classic
     X: 4
     Y: 4
     first: 1
-  - SourceImage: {fileID: 0}
+  - SourceImage: {fileID: 21300000, guid: 8671fa7271ab76c40ae487dcac68f850, type: 3}
     Name: Big
     X: 5
     Y: 5
     first: 0
-  - SourceImage: {fileID: 0}
+  - SourceImage: {fileID: 21300000, guid: 07190aad358ea044395367a06e0cf758, type: 3}
     Name: Bigger
     X: 6
     Y: 6
     first: 0
-  - SourceImage: {fileID: 0}
+  - SourceImage: {fileID: 21300000, guid: 0ee856836195b9c40adb234d8bfdbbb1, type: 3}
     Name: Biggest
     X: 8
     Y: 8

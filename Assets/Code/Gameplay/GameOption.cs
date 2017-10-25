@@ -21,6 +21,7 @@ namespace Code.Gameplay
         {
             Option = newVal;
             preInit = true;
+            selfDestruct = false;
         }
     }
 }
