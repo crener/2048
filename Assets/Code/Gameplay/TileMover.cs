@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Assets.Code.Gameplay;
 using Assets.Code.Reusable;
 using UnityEngine;
 using UnityEngine.Profiling;
@@ -19,22 +20,18 @@ namespace Code.Gameplay
         }
 
         [SerializeField]
-        private Text scoreText;
-        [SerializeField]
-        private Text GameOver;
+        private Text scoreText, GameOver;
         [SerializeField]
         private int historyLength = 3;
         [Header("Tile Colour Settings")]
         [SerializeField]
-        private Color primaryTextColour = Color.black;
-        [SerializeField]
-        private Color secondaryTextColour = Color.white;
+        private Color primaryTextColour = Color.black,
+            secondaryTextColour = Color.white,
+            emptyTileColor = Color.grey;
         [SerializeField]
         private List<TileStyle> Styles = new List<TileStyle>(14);
         [SerializeField]
         private TileStyle unknownTileStyle;
-        [SerializeField]
-        private Color emptyTileColor = Color.grey;
         [Header("Tile Movement Settings")]
         [SerializeField, Tooltip("Time (seconds) it takes to complete one move across the board")]
         private float movementSpeed = 0.2f;
@@ -93,6 +90,21 @@ namespace Code.Gameplay
             UpdateHistory(); //save initial state
         }
 
+        private void OnApplicationPause(bool pauseStatus)
+        {
+            Save();
+        }
+
+        private void OnApplicationQuit()
+        {
+            Save();
+        }
+
+        public void Save()
+        {
+            SaveSystem.SaveBoard(BuildSaveState());
+        }
+
         private Tile FindEmptyEdgeTile()
         {
             Tile edgeTile = null;
@@ -146,7 +158,7 @@ namespace Code.Gameplay
                 for (int i = 0; i < boardSize.X; i++)
                 {
                     pos.X = i;
-                    if(tilePositions[pos].Value == -1)
+                    if (tilePositions[pos].Value == -1)
                         validPositions.Add(tilePositions[pos]);
                 }
 
@@ -378,6 +390,7 @@ namespace Code.Gameplay
         {
             if (isEndOfGame() && GameOver != null)
             {
+                SaveSystem.RemoveBoard(boardSize.X, boardSize.Y);
                 GameOver.gameObject.SetActive(true);
                 return;
             }
@@ -433,6 +446,7 @@ namespace Code.Gameplay
         {
             if (isEndOfGame() && GameOver != null)
             {
+                SaveSystem.RemoveBoard(boardSize.X, boardSize.Y);
                 GameOver.gameObject.SetActive(true);
                 return;
             }
@@ -489,6 +503,7 @@ namespace Code.Gameplay
         {
             if (isEndOfGame() && GameOver != null)
             {
+                SaveSystem.RemoveBoard(boardSize.X, boardSize.Y);
                 GameOver.gameObject.SetActive(true);
                 return;
             }
@@ -545,6 +560,7 @@ namespace Code.Gameplay
         {
             if (isEndOfGame() && GameOver != null)
             {
+                SaveSystem.RemoveBoard(boardSize.X, boardSize.Y);
                 GameOver.gameObject.SetActive(true);
                 return;
             }
@@ -613,14 +629,19 @@ namespace Code.Gameplay
             else
             {
                 Score += mover.Value * 2;
-                TileStyle style = getStyle(mover.Value * 2);
-                mover.MergeTile(replace.GridPosition, replace.UiPosition, movementSpeed, replace,
-                    style.Color, style.SecondaryTextColour ? secondaryTextColour : primaryTextColour);
+                Color font, style;
+                getStyle(mover.Value * 2, out style, out font);
+                mover.MergeTile(replace.GridPosition, replace.UiPosition, movementSpeed, replace, style, font);
             }
             Profiler.EndSample();
         }
 
         private void UpdateHistory()
+        {
+            history.Push(BuildSaveState());
+        }
+
+        private BoardState BuildSaveState()
         {
             BoardState state = new BoardState(boardSize.X, boardSize.Y);
             state.Score = score;
@@ -637,7 +658,7 @@ namespace Code.Gameplay
                 state.tiles[position] = tileState;
             }
 
-            history.Push(state);
+            return state;
         }
 
         public void Back()
@@ -659,7 +680,17 @@ namespace Code.Gameplay
                 }
             }
 
-            if (GameOver != null) GameOver.gameObject.SetActive(isEndOfGame());
+            if (isEndOfGame())
+            {
+                SaveSystem.RemoveBoard(boardSize.X, boardSize.Y);
+                SaveSystem.SaveScore(score, boardSize.X, boardSize.Y);
+                if (GameOver != null) GameOver.gameObject.SetActive(true);
+            }
+            else
+            {
+                SaveSystem.SaveBoard(BuildSaveState());
+                if (GameOver != null) GameOver.gameObject.SetActive(false);
+            }
         }
 
         private TileStyle getStyle(int i)
@@ -670,6 +701,13 @@ namespace Code.Gameplay
             }
 
             return unknownTileStyle;
+        }
+
+        internal void getStyle(int i, out Color tile, out Color fontColour)
+        {
+            TileStyle style = getStyle(i);
+            fontColour = style.SecondaryTextColour ? secondaryTextColour : primaryTextColour;
+            tile = style.Color;
         }
 
         private void PlaceEmptyTile(BoardPos grid, Vector2 ui)
@@ -751,6 +789,7 @@ namespace Code.Gameplay
         }
     }
 
+    [Serializable]
     internal class TileState
     {
         public int Points;

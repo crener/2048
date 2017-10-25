@@ -118,6 +118,7 @@ GameObject:
   - component: {fileID: 162955192}
   - component: {fileID: 162955194}
   - component: {fileID: 162955193}
+  - component: {fileID: 162955195}
   m_Layer: 5
   m_Name: HighScore
   m_TagString: Untagged
@@ -182,6 +183,19 @@ CanvasRenderer:
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 162955191}
+--- !u!114 &162955195
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 162955191}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f29028094116eb345904008c9e7a320d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  tiles: {fileID: 1083837860}
+  highScoreText: {fileID: 162955193}
 --- !u!1 &362508105
 GameObject:
   m_ObjectHideFlags: 0
@@ -654,6 +668,7 @@ MonoBehaviour:
   historyLength: 3
   primaryTextColour: {r: 0.19852942, g: 0.19852942, b: 0.19852942, a: 1}
   secondaryTextColour: {r: 1, g: 1, b: 1, a: 1}
+  emptyTileColor: {r: 0.6313726, g: 0.6313726, b: 0.6313726, a: 1}
   Styles:
   - score: 2
     Color: {r: 0.89705884, g: 0.89705884, b: 0.89705884, a: 1}
@@ -692,7 +707,6 @@ MonoBehaviour:
     score: -1
     Color: {r: 0, g: 0, b: 0, a: 1}
     SecondaryTextColour: 1
-  emptyTileColor: {r: 0.6313726, g: 0.6313726, b: 0.6313726, a: 1}
   movementSpeed: 0.2
   edgeSpawn: 0.7
   highScoreSpawn: 0.1
@@ -1251,3 +1265,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3bead5d4ebfaae64d9fd1a2c0338e2a1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  mover: {fileID: 1083837860}
